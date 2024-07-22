@@ -20,11 +20,7 @@ import {
 } from "../components/WeatherData";
 import { WeatherIcon } from "../components/WeatherIcon";
 import Icon from "../components/Icon";
-import RoomsDataMock, {
-  SectionOfRooms,
-  Room,
-  SectionNamesMock,
-} from "../components/RoomsData";
+import { Room, SectionOfRooms, useRooms } from "../RoomsContext";
 import RoomCard from "../components/RoomCard";
 
 const bedroomImage = require("../assets/images/Bedroom.png");
@@ -43,6 +39,8 @@ type RoomTextType = {
 };
 
 export default function Home({ navigation }: any) {
+  const { GetRoomsData, sectionNames } = useRooms();
+
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState<WeatherType | null>(null);
   const [currentRoomSection, setCurrentRoom] = useState("");
@@ -59,9 +57,7 @@ export default function Home({ navigation }: any) {
 
   const currentDay = getFormattedDate();
   // const [roomsDataWithoutFilters, setRoomsDataWithoutFilters]=useState<SectionOfRooms[] | null>(null);
-  const [roomsData, setRoomsData] = useState<SectionOfRooms[] | null>(
-    null
-  );
+  const [roomsData, setRoomsData] = useState<SectionOfRooms[] | null>(null);
 
   function switchDisplayAddBlock() {
     setDisplayAddBlock(!displayAddBlock);
@@ -82,11 +78,12 @@ export default function Home({ navigation }: any) {
       }
     };
     fetchWeather();
-    let mock = RoomsDataMock();
-    setRoomsData(mock);
+    let data = GetRoomsData();
+    console.log(data);
+    setRoomsData(data);
     // setRoomsDataWithoutFilters(mock);
-    setCurrentRoom(mock[0].nameOfSection);
-    console.log(mock[0].nameOfSection);
+    setCurrentRoom(data[0].nameOfSection);
+    console.log(data[0].nameOfSection);
   }, []);
   useEffect(() => {
     let curRoomArr = null;
@@ -139,14 +136,14 @@ export default function Home({ navigation }: any) {
     // console.log(SectionNamesMock);
     if (item.index == 0) {
       s.push({ paddingLeft: 32 });
-    } else if (item.index == SectionNamesMock.length - 1) {
+    } else if (item.index == sectionNames.length - 1) {
       s.push({ paddingRight: 32 });
     }
     if (item.item.nameOfSection == currentRoomSection) {
       s.push({ opacity: 1 });
     }
     return (
-      <Pressable onPress={onClick} style={{ paddingVertical: 20}}>
+      <Pressable onPress={onClick} style={{ paddingVertical: 20 }}>
         <Text style={s}>{item.item.nameOfSection}</Text>
       </Pressable>
     );
@@ -232,25 +229,25 @@ export default function Home({ navigation }: any) {
           {displayAddBlock && (
             <View style={styles.hiddenMenu}>
               <View style={styles.addGenView}>
-                <Pressable onPress={()=>navigation.navigate("AddRoomSection")}>
-                <View style={[styles.plusContainer, {marginBottom: -10, flexDirection: 'row', gap: 7}]}>
-                  <Icon name="plus" color="#49545c" size={32} />
-                  <Icon name="minus" color="#49545c" size={32} />
-                </View>
+                <Text style={styles.hiddenPanelText}>Sections</Text>
+                <Pressable
+                  onPress={() => {switchDisplayAddBlock(); navigation.navigate("AddRoomSection");}}
+                >
+                  <View style={[styles.plusContainer]}>
+                    <Icon name="plus" color="white" size={32} />
+                  </View>
+                  <View style={[styles.plusContainer]}>
+                    <Icon name="minus" color="white" size={32} />
+                  </View>
                 </Pressable>
               </View>
               <View style={styles.addRoomView}>
-                <View style={[styles.plusContainer, { marginTop: -60, paddingVertical: 90 }]}>
-                  <Icon
-                    name="plus"
-                    color="#49545c"
-                    size={50}
-                  />
-                  <Icon
-                    name="minus"
-                    color="#49545c"
-                    size={50}
-                  />
+                <Text style={styles.hiddenPanelText}>Rooms</Text>
+                <View style={[styles.plusContainer]}>
+                  <Icon name="plus" color="white" size={32} />
+                </View>
+                <View style={[styles.plusContainer]}>
+                  <Icon name="minus" color="white" size={32} />
                 </View>
               </View>
             </View>
@@ -275,7 +272,12 @@ export default function Home({ navigation }: any) {
         >
           {roomsData && (
             <FlatList
-              style={{marginTop: 10, borderTopWidth: 2, borderBottomWidth: 2, borderColor: "rgba(35, 40, 44, 0.3)",}}
+              style={{
+                marginTop: 10,
+                borderTopWidth: 1,
+                borderBottomWidth: 1,
+                borderColor: "rgba(35, 40, 44, 0.3)",
+              }}
               showsHorizontalScrollIndicator={false}
               horizontal={true}
               data={roomsData}
@@ -321,8 +323,15 @@ const styles = StyleSheet.create({
     // alignItems: "center",
     // justifyContent: "center",
   },
-  plusContainer:{
-    backgroundColor: "white",
+  hiddenPanelText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+    paddingBottom: 5,
+  },
+  plusContainer: {
+    marginTop: 10,
+    backgroundColor: "#758794",
     padding: 10,
     borderRadius: 10,
     shadowColor: "black",
@@ -332,6 +341,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: 100,
     backgroundColor: "#49545c",
+    gap: 10,
     // borderTopWidth: 1,
     // borderBottomWidth: 1,
     // borderColor: 'white'
@@ -363,13 +373,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   addGenView: {
-    height: 70,
+    height: 200,
+    // flex: 1,
     // backgroundColor: "blue",
     alignItems: "center",
     justifyContent: "center",
   },
   addRoomView: {
-    flex: 1,
+    height: 200,
+    // flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },

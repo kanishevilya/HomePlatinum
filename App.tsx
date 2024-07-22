@@ -9,47 +9,49 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import ColorPalette from "./pages/ColorPalette";
-import { AddSectionName } from "./components/RoomsData";
 import AddRoomSection from "./pages/AddRoomSection";
+import { RoomsProvider } from "./RoomsContext";
 const RootStack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <UsersProvider>
-      <NavigationContainer>
-        <StatusBar />
-        <RootStack.Navigator>
-          <RootStack.Group>
-            <RootStack.Screen
-              name="Login"
-              component={Login}
-              options={({ navigation }) => ({ headerShown: false })}
-            />
-            <RootStack.Screen
-              name="Register"
-              component={Register}
-              options={({ navigation }) => ({ headerShown: false })}
-            />
-            <RootStack.Screen
-              name="Home"
-              component={Home}
-              options={({ navigation }) => ({ headerShown: false })}
-            />
-          </RootStack.Group>
-          <RootStack.Group screenOptions={{ presentation: "modal" }}>
-            <RootStack.Screen
-              name="ColorPalette"
-              component={ColorPalette}
-              options={({ navigation }) => ({ headerShown: false })}
-            />
-            <RootStack.Screen
-              name="AddRoomSection"
-              component={AddRoomSection}
-              options={({ navigation }) => ({ headerShown: false })}
-            />
-          </RootStack.Group>
-        </RootStack.Navigator>
-      </NavigationContainer>
+      <RoomsProvider>
+        <NavigationContainer>
+          <StatusBar />
+          <RootStack.Navigator>
+            <RootStack.Group>
+              <RootStack.Screen
+                name="Login"
+                component={Login}
+                options={({ navigation }) => ({ headerShown: false })}
+              />
+              <RootStack.Screen
+                name="Register"
+                component={Register}
+                options={({ navigation }) => ({ headerShown: false })}
+              />
+              <RootStack.Screen
+                name="Home"
+                component={Home}
+                options={({ navigation }) => ({ headerShown: false })}
+              />
+            </RootStack.Group>
+            <RootStack.Group screenOptions={{ presentation: "modal" }}>
+              <RootStack.Screen
+                name="ColorPalette"
+                component={ColorPalette}
+                options={({ navigation }) => ({ headerShown: false })}
+              />
+              <RootStack.Screen
+                name="AddRoomSection"
+                component={AddRoomSection}
+                options={({ navigation }) => ({ headerShown: false })}
+              />
+            </RootStack.Group>
+          </RootStack.Navigator>
+        </NavigationContainer>
+      </RoomsProvider>
     </UsersProvider>
   );
 }

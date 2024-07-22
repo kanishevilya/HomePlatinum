@@ -1,20 +1,52 @@
 import { useState } from "react";
-import { View, StyleSheet, TextInput, Pressable, Text } from "react-native";
+import { View, StyleSheet, TextInput, Pressable, Text, Alert } from "react-native";
+import Icon from "../components/Icon";
+import { useNavigation } from "@react-navigation/native";
+import { useRooms } from "../RoomsContext";
 
-export default function AddRoomGeneralization() {
-  const [nameOfGen, setNameOfGen] = useState("");
+export default function AddRoomSection({navigation}:any) {
+  // const navigation = useNavigation();
+  const [nameOfSection, setNameOfSection] = useState("");
+  const {sectionNames, AddSectionName} = useRooms();
+
+  const handleAddPress = () => {
+    const trimmedName = nameOfSection.trim();
+
+    if (trimmedName == '') {
+      Alert.alert('Error', 'Room Section name cannot be empty!');
+      return;
+    }
+
+    const isDuplicate = sectionNames.some(
+      (section) => section.trim().toLowerCase() === trimmedName.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      Alert.alert('Error', 'Room Section with the same name already exists!');
+      return;
+    }
+    AddSectionName(trimmedName);
+    setNameOfSection('');
+    navigation.navigate("Home");
+  };
+
   return (
     <View style={styles.container}>
+      <Pressable onPress={() => navigation.goBack()} style={styles.goBackContainer}>
+        <Icon name="arrow-circle-left" color="#23282C" size={42} />
+        <Text style={styles.goBackText}>Go Back</Text>
+      </Pressable>
+      <Text style={styles.title}>Room Sections</Text>
       <TextInput
-        value={nameOfGen}
-        onChangeText={setNameOfGen}
-        placeholder="Enter a Room Generalization"
+        style={styles.input}
+        value={nameOfSection}
+        onChangeText={setNameOfSection}
+        placeholder="Enter a Room Section"
         placeholderTextColor="gray"
       />
-      <Pressable style={styles.btn}>
+      <Pressable style={styles.btn} onPress={handleAddPress}>
         <Text style={styles.btnText}>Add</Text>
       </Pressable>
-      
     </View>
   );
 }
@@ -23,137 +55,55 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
+    // alignItems: "center",
     // justifyContent: "center",
+    padding: 20,
   },
-  textView: {
-    marginRight: 20,
+  goBackContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: "flex-start",
+    // backgroundColor: 'pink',
+    marginBottom: 40,
     marginTop: 40,
   },
-  blueText: {
-    color: "#3A96CF",
-    fontWeight: "700",
-  },
-  mainTitle: {
+  goBackText: {
+    fontSize: 24,
     color: "#23282C",
-    // fontFamily: "Poppins",
-    fontSize: 48,
-    fontWeight: "800",
-    letterSpacing: 4,
-    textAlign: "left",
+    fontWeight: "700",
+    marginLeft: 15,
   },
   title: {
-    color: "#435563",
-    fontSize: 36,
-    fontWeight: "500",
-    textAlign: "left",
-    paddingTop: 10,
-    paddingLeft: 3,
-  },
-  subTitle: {
-    opacity: 0.3,
+    textAlign: 'center',
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 20,
     color: "#23282C",
-    fontSize: 24,
-    fontWeight: "400",
-    paddingTop: 4,
-    paddingLeft: 3,
-  },
-  loginText: {
-    width: 195,
-    textAlign: "center",
-    fontSize: 50,
-    fontWeight: "500",
-    color: "#435563",
-  },
-  loginBlock: {
-    flex: 1,
-    alignItems: "center",
-    marginTop: 50,
-  },
-  firstInput: {
-    marginBottom: 30,
   },
   input: {
-    height: 64,
-    width: 326,
+    height: 50,
+    width: "100%",
     textAlign: "left",
-    fontSize: 20,
+    fontSize: 18,
     color: "#23282C",
-    borderWidth: 2,
-    borderColor: "white",
-    borderRadius: 12,
-
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
     backgroundColor: "white",
-    // backgroundColor: "linear-gradient(180.00deg, rgb(237, 237, 237) -0.18, rgb(255, 255, 255) 1.1)",
-    paddingHorizontal: 20,
-
-    shadowColor: "#23282C",
-    elevation: 10,
-  },
-  iconView: {
-    marginTop: 50,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: 300,
-  },
-  row: {
-    marginTop: 20,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 20,
-  },
-  text: {
-    textAlign: "center",
-    fontSize: 25,
-    fontWeight: "800",
-    padding: 10,
-    color: "cadetblue",
+    paddingHorizontal: 15,
+    marginBottom: 20,
   },
   btn: {
-    width: 326,
-    height: 64,
-    marginTop: 50,
-    borderRadius: 18,
-    borderWidth: 2,
-    borderColor: "rgba(111, 111, 111, 0.9)",
+    width: "100%",
+    height: 50,
+    borderRadius: 8,
     backgroundColor: "#23282C",
     alignItems: "center",
     justifyContent: "center",
   },
   btnText: {
-    userSelect: "none",
     fontSize: 18,
     fontWeight: "500",
     color: "white",
-  },
-  grayText: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "rgb(35, 40, 44)",
-    opacity: 0.4,
-  },
-  underBtnLink: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#3A96CF",
-  },
-  biometricBtn: {
-    marginTop: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    width: 147,
-    height: 62,
-    borderRadius: 24,
-    backgroundColor: "white",
-
-    shadowColor: "#23282C",
-    elevation: 8,
-  },
-  biometricBtnText: {
-    fontWeight: "500",
-    fontSize: 14,
-    color: "#23282C",
   },
 });
