@@ -1,20 +1,71 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+
+import { UsersProvider } from "./UsersContext";
+
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Home from "./pages/Home";
+import ColorPalette from "./pages/ColorPalette";
+const RootStack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <UsersProvider>
+      <NavigationContainer>
+        <StatusBar />
+        <RootStack.Navigator>
+          <RootStack.Group>
+            <RootStack.Screen
+              name="Login"
+              component={Login}
+              options={({ navigation }) => ({ headerShown: false })}
+            />
+            <RootStack.Screen
+              name="Register"
+              component={Register}
+              options={({ navigation }) => ({ headerShown: false })}
+            />
+            <RootStack.Screen
+              name="Home"
+              component={Home}
+              options={({ navigation }) => ({ headerShown: false })}
+            />
+          </RootStack.Group>
+          <RootStack.Group screenOptions={{ presentation: "modal" }}>
+            <RootStack.Screen
+              name="ColorPalette"
+              component={ColorPalette}
+              options={({ navigation }) => ({ headerShown: false })}
+            />
+          </RootStack.Group>
+        </RootStack.Navigator>
+      </NavigationContainer>
+    </UsersProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+  btn: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    margin: 10,
+    borderRadius: 7,
+    backgroundColor: "cadetblue",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 20,
+  },
+  btnText: {
+    userSelect: "none",
+    fontSize: 18,
+    color: "white",
   },
 });
