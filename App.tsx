@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import ColorPalette from "./pages/ColorPalette";
+import { AddSectionName } from "./components/RoomsData";
+import AddRoomSection from "./pages/AddRoomSection";
 const RootStack = createNativeStackNavigator();
 
 export default function App() {
@@ -38,6 +40,11 @@ export default function App() {
             <RootStack.Screen
               name="ColorPalette"
               component={ColorPalette}
+              options={({ navigation }) => ({ headerShown: false })}
+            />
+            <RootStack.Screen
+              name="AddRoomSection"
+              component={AddRoomSection}
               options={({ navigation }) => ({ headerShown: false })}
             />
           </RootStack.Group>

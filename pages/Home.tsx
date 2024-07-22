@@ -21,9 +21,9 @@ import {
 import { WeatherIcon } from "../components/WeatherIcon";
 import Icon from "../components/Icon";
 import RoomsDataMock, {
-  GeneralizationOfRooms,
-  GeneralizationNamesMock,
+  SectionOfRooms,
   Room,
+  SectionNamesMock,
 } from "../components/RoomsData";
 import RoomCard from "../components/RoomCard";
 
@@ -45,7 +45,7 @@ type RoomTextType = {
 export default function Home({ navigation }: any) {
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState<WeatherType | null>(null);
-  const [currentRoomGeneralization, setCurrentRoom] = useState("");
+  const [currentRoomSection, setCurrentRoom] = useState("");
   const [currentRoomsArray, setCurrentRoomsArray] = useState<Room[] | null>(
     null
   );
@@ -53,13 +53,13 @@ export default function Home({ navigation }: any) {
     Room[]
   >([]);
 
-  const [displayAddBlock, setDisplayAddBlock] = useState(true);
+  const [displayAddBlock, setDisplayAddBlock] = useState(false);
 
   const [nameFilter, setNameFilter] = useState("");
 
   const currentDay = getFormattedDate();
-  // const [roomsDataWithoutFilters, setRoomsDataWithoutFilters]=useState<GeneralizationOfRooms[] | null>(null);
-  const [roomsData, setRoomsData] = useState<GeneralizationOfRooms[] | null>(
+  // const [roomsDataWithoutFilters, setRoomsDataWithoutFilters]=useState<SectionOfRooms[] | null>(null);
+  const [roomsData, setRoomsData] = useState<SectionOfRooms[] | null>(
     null
   );
 
@@ -85,14 +85,14 @@ export default function Home({ navigation }: any) {
     let mock = RoomsDataMock();
     setRoomsData(mock);
     // setRoomsDataWithoutFilters(mock);
-    setCurrentRoom(mock[0].nameOfGeneralization);
-    console.log(mock[0].nameOfGeneralization);
+    setCurrentRoom(mock[0].nameOfSection);
+    console.log(mock[0].nameOfSection);
   }, []);
   useEffect(() => {
     let curRoomArr = null;
     if (roomsData) {
       let genData = roomsData.filter(
-        (i) => i.nameOfGeneralization == currentRoomGeneralization
+        (i) => i.nameOfSection == currentRoomSection
       );
       if (genData.length) {
         curRoomArr = genData[0].roomsArray;
@@ -104,7 +104,7 @@ export default function Home({ navigation }: any) {
     // if(!currentFilteredRoomsArray.length){
     //   setCurrentFilteredRoomsArray(curRoomArr?? []);
     // }
-  }, [currentRoomGeneralization]);
+  }, [currentRoomSection]);
 
   function filterByName(name: string, curRoomArr: [] = []) {
     if (curRoomArr.length) {
@@ -126,27 +126,28 @@ export default function Home({ navigation }: any) {
   function RoomText({
     item,
   }: {
-    item: { index: number; item: GeneralizationOfRooms };
+    item: { index: number; item: SectionOfRooms };
   }) {
     function onClick() {
-      if (currentRoomGeneralization == item.item.nameOfGeneralization) {
+      if (currentRoomSection == item.item.nameOfSection) {
         return;
       }
-      setCurrentRoom(item.item.nameOfGeneralization);
+      setCurrentRoom(item.item.nameOfSection);
       switchList();
     }
     let s: any[] = [styles.roomItem];
+    // console.log(SectionNamesMock);
     if (item.index == 0) {
       s.push({ paddingLeft: 32 });
-    } else if (item.index == GeneralizationNamesMock.length - 1) {
+    } else if (item.index == SectionNamesMock.length - 1) {
       s.push({ paddingRight: 32 });
     }
-    if (item.item.nameOfGeneralization == currentRoomGeneralization) {
+    if (item.item.nameOfSection == currentRoomSection) {
       s.push({ opacity: 1 });
     }
     return (
       <Pressable onPress={onClick} style={{ paddingVertical: 20}}>
-        <Text style={s}>{item.item.nameOfGeneralization}</Text>
+        <Text style={s}>{item.item.nameOfSection}</Text>
       </Pressable>
     );
   }
@@ -231,14 +232,22 @@ export default function Home({ navigation }: any) {
           {displayAddBlock && (
             <View style={styles.hiddenMenu}>
               <View style={styles.addGenView}>
-                <View style={[styles.plusContainer, {marginBottom: -10}]}>
+                <Pressable onPress={()=>navigation.navigate("AddRoomSection")}>
+                <View style={[styles.plusContainer, {marginBottom: -10, flexDirection: 'row', gap: 7}]}>
                   <Icon name="plus" color="#49545c" size={32} />
+                  <Icon name="minus" color="#49545c" size={32} />
                 </View>
+                </Pressable>
               </View>
               <View style={styles.addRoomView}>
-                <View style={[styles.plusContainer, { marginTop: -60, paddingVertical: 110 }]}>
+                <View style={[styles.plusContainer, { marginTop: -60, paddingVertical: 90 }]}>
                   <Icon
                     name="plus"
+                    color="#49545c"
+                    size={50}
+                  />
+                  <Icon
+                    name="minus"
                     color="#49545c"
                     size={50}
                   />

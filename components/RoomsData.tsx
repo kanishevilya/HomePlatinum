@@ -11,15 +11,15 @@ export type Device = {
 };
 export type Room = {
   id: string | number[];
-  namesOfGeneralization: string[]; // Например, у нас есть комната "Детская", она может относиться к разделам LivingRoom и Study Room одновременно
+  namesOfSection: string[]; // Например, у нас есть комната "Детская", она может относиться к разделам LivingRoom и Study Room одновременно
   nameOfRoom: string;
   image: string;
   devices: Device[];
 };
 
-export type GeneralizationOfRooms = {
+export type SectionOfRooms = {
   id: string | number[];
-  nameOfGeneralization: string;
+  nameOfSection: string;
   roomsArray: Room[];
 };
 
@@ -48,28 +48,33 @@ const RoomCategories: Record<string, string[]> = {
   Restrooms: ["Restroom", "Laundry"],
 };
 
-export const GeneralizationNamesMock = [
+export const SectionNamesMock = [
   "Living Room",
   "Kitchen",
   "Study Room",
   "Restrooms",
 ];
 
-const RoomsMock: GeneralizationOfRooms[] = [];
+export function AddSectionName(name: string){
+  SectionNamesMock.push(name);
+  RoomCategories[name]=[];
+}
+
+const RoomsMock: SectionOfRooms[] = [];
 export function RoomsDataInit() {
   const roomMap = new Map<string, Room>();
-
-  for (let generalization of GeneralizationNamesMock) {
-    const roomsArray: Room[] = RoomCategories[generalization].map(
+  // console.log(SectionNamesMock);
+  for (let section of SectionNamesMock) {
+    const roomsArray: Room[] = RoomCategories[section].map(
       (roomName) => {
         if (roomMap.has(roomName)) {
           const existingRoom = roomMap.get(roomName)!;
-          existingRoom.namesOfGeneralization.push(generalization);
+          existingRoom.namesOfSection.push(section);
           return existingRoom;
         } else {
           const newRoom: Room = {
             id: uuid.v4(),
-            namesOfGeneralization: [generalization],
+            namesOfSection: [section],
             nameOfRoom: roomName,
             image: "",
             devices: [],
@@ -82,7 +87,7 @@ export function RoomsDataInit() {
 
     RoomsMock.push({
       id: uuid.v4(),
-      nameOfGeneralization: generalization,
+      nameOfSection: section,
       roomsArray: roomsArray,
     });
   }
