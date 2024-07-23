@@ -1,23 +1,43 @@
-import React, { useState } from "react";
-import { View, StyleSheet, Text, Pressable, Alert, FlatList } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  Text,
+  Pressable,
+  Alert,
+  FlatList,
+} from "react-native";
 import Icon from "../components/Icon";
 import { Section, useRooms } from "../RoomsContext";
 
-export default function RemoveRoomSection({ navigation }: any) {
-  const { sections, removeSection } = useRooms();
-  const [selectedSection, setSelectedSection] = useState<string | number[] | null>(null);
+export default function RemoveRoomSection({ navigation, route }: any) {
+  const {id}=route.params || null;
+//   alert(id);
+  const { sections, removeSection, getUnassignedRooms } = useRooms();
+  const [unassignedRooms, setUnassignedRooms] = useState(0);
+  const [selectedSection, setSelectedSection] = useState<
+    string | number[] | null
+  >(id);
+  const [removeSwitcher, setRemoveSwitcher]=useState(false); // для useEffect
+
+  const [canBeRemove, setCanBeRemove]=useState(false);
+
+  useEffect(()=>{
+    setUnassignedRooms(getUnassignedRooms().length);
+  },[removeSwitcher]);
 
   const handleRemovePress = (sectionId: string | number[]) => {
     // Найти секцию
-    const section = sections.find(sec => sec.id === sectionId);
+    const section = sections.find((sec) => sec.id === sectionId);
 
     if (!section) return;
 
     // Проверить наличие комнат в секции
-    if (section.roomIds.length > 0) {
+    if (section.roomIds.length > 0 && !canBeRemove) {
+      setCanBeRemove(true);
       Alert.alert(
-        "Cannot Remove Section",
-        "This section contains rooms. Please remove the rooms before deleting the section.",
+        "This section contains rooms.",
+        "Click again if you want to move the rooms to 'Unassigned' and delete the section.",
         [{ text: "OK" }]
       );
       return;
@@ -26,49 +46,90 @@ export default function RemoveRoomSection({ navigation }: any) {
     // Удаление секции
     removeSection(sectionId);
     setSelectedSection(null); // Снять выделение секции
+    setRemoveSwitcher(!removeSwitcher);
   };
 
-  const renderSection = ({ item }: { item: Section }) => (
-    <View style={styles.sectionContainer}>
-      <Pressable
-        style={[
-          styles.sectionItem,
-          { backgroundColor: selectedSection === item.id ? "#e0e0e0" : "#f9f9f9" }
-        ]}
-        onPress={() => setSelectedSection(item.id)}
+  const renderSection = (listItem: { index: number; item: Section }) => {
+
+    const item = listItem.item;
+    return (
+      <View
+        style={
+          listItem.index == sections.length - 1
+            ? [styles.sectionContainer, { marginBottom: 10 }]
+            : styles.sectionContainer
+        }
       >
-        {item.roomIds.length > 0 && selectedSection === item.id && (
-          <Icon name="warning" color="#ff4d4d" size={24} addStyle={styles.warningIcon} />
-        )}
-        <View style={styles.sectionContent}>
-          <Text style={styles.sectionText}>{item.name}</Text>
-          <Text style={styles.roomCount}>{item.roomIds.length} rooms</Text>
-        </View>
-        {selectedSection === item.id && (
-          <Pressable
-            style={styles.removeButton}
-            onPress={() => handleRemovePress(item.id)}
-          >
-            <Text style={styles.removeButtonText}>Remove</Text>
-          </Pressable>
-        )}
-      </Pressable>
-    </View>
-  );
+        <Pressable
+          style={[
+            styles.sectionItem,
+            {
+              backgroundColor:
+                selectedSection === item.id ? "#e0e0e0" : "#f9f9f9",
+            },
+          ]}
+          onPress={() => setSelectedSection(item.id)}
+        >
+          {item.roomIds.length > 0 && selectedSection === item.id && (
+            <Icon
+              name="warning"
+              color="#ff4d4d"
+              size={24}
+              addStyle={styles.warningIcon}
+            />
+          )}
+          <View style={styles.sectionContent}>
+            <Text style={styles.sectionText}>{item.name}</Text>
+            <Text style={styles.roomCount}>{item.roomIds.length} rooms</Text>
+          </View>
+          {selectedSection === item.id && (
+            <Pressable
+              style={styles.removeButton}
+              onPress={() => handleRemovePress(item.id)}
+            >
+              <Text style={styles.removeButtonText}>Remove</Text>
+            </Pressable>
+          )}
+        </Pressable>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <Pressable onPress={() => navigation.goBack()} style={styles.goBackContainer}>
+      <Pressable
+        onPress={() => navigation.goBack()}
+        style={styles.goBackContainer}
+      >
         <Icon name="arrow-circle-left" color="#23282C" size={42} />
         <Text style={styles.goBackText}>Go Back</Text>
       </Pressable>
       <Text style={styles.title}>Remove Room Sections</Text>
-      <FlatList
-        data={sections}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderSection}
-        contentContainerStyle={styles.list}
-      />
+      <View>
+        <FlatList
+          data={sections}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={(item) => renderSection(item)}
+          style={styles.list}
+        />
+      </View>
+      <View style={styles.sectionContainerUnassigned}>
+        <Pressable
+          style={[
+            styles.sectionItem,
+            {
+              backgroundColor: "#23282C",
+            },
+          ]}
+        >
+          <View style={styles.sectionContent}>
+            <Text style={styles.sectionTextUnassigned}>Unassigned Rooms</Text>
+            <Text style={styles.roomCountUnassigned}>
+              {unassignedRooms} rooms
+            </Text>
+          </View>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -102,6 +163,9 @@ const styles = StyleSheet.create({
   sectionContainer: {
     marginVertical: 10,
   },
+  sectionContainerUnassigned: {
+    marginTop: 50,
+  },
   sectionItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -119,14 +183,22 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#23282C",
   },
+  sectionTextUnassigned: {
+    fontSize: 18,
+    color: "white",
+  },
   roomCount: {
+    fontSize: 14,
+    color: "#888",
+    marginTop: 5,
+  },
+  roomCountUnassigned: {
     fontSize: 14,
     color: "#888",
     marginTop: 5,
   },
   warningIcon: {
     marginRight: 15,
-
   },
   removeButton: {
     backgroundColor: "#ff4d4d",
@@ -140,5 +212,6 @@ const styles = StyleSheet.create({
   },
   list: {
     marginTop: 20,
+    height: 410,
   },
 });

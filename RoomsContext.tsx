@@ -57,6 +57,7 @@ type RoomsContextType = {
   getSections: () => Section[];
   getRooms: () => Room[];
   removeSection: (id: string | number[] ) => void;
+  getUnassignedRooms: () => Room[];
 };
 
 const RoomsContext = createContext<RoomsContextType>({} as RoomsContextType);
@@ -166,6 +167,10 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const getUnassignedRooms = ()=>{
+    return rooms.filter((room)=>room.sectionIds.length==0);
+  }
+
   const getSections = () => sections;
   const getRooms = () => rooms;
 
@@ -179,6 +184,7 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
         getSections,
         getRooms,
         removeSection,
+        getUnassignedRooms,
       }}
     >
       {children}

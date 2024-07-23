@@ -15,6 +15,7 @@ import RemoveRoomSection from "./pages/RemoveRoomSection";
 const RootStack = createNativeStackNavigator();
 
 export default function App() {
+  
   return (
     <UsersProvider>
       <RoomsProvider>

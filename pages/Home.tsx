@@ -37,8 +37,11 @@ type RoomTextType = {
 };
 
 export default function Home({ navigation, route }: any) {
-  const { sections, rooms } = useRooms();
+  // AsyncStorage.clear();
 
+  const firstList = useRef<FlatList<any>>(null);
+
+  const { sections, rooms } = useRooms();
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState<WeatherType | null>(null);
   const [currentSectionId, setCurrentSectionId] = useState<
@@ -47,6 +50,7 @@ export default function Home({ navigation, route }: any) {
   const [currentRoomsArray, setCurrentRoomsArray] = useState<Room[]>([]);
   const [displayAddBlock, setDisplayAddBlock] = useState(false);
 
+  const [isIdFromParams, setIsIdFromParams]=useState(false);
   const currentDay = getFormattedDate();
 
   function switchDisplayAddBlock() {
@@ -54,21 +58,23 @@ export default function Home({ navigation, route }: any) {
   }
   console.log(route);
 
-  useEffect(() => {
-    console.log(route);
-    if (route.params && route.params.id) {
-      console.log("Ura?");
-      setCurrentSectionId(route.params.id);
-    }
-  }, []);
+  // useEffect(() => {
+  //   console.log(route);
+  //   if (route.params && route.params.id) {
+  //     console.log("Ura?");
+  //     setCurrentSectionId(route.params.id);
+  //   }
+  // }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (route.params && route.params.id) {
-        setCurrentSectionId(route.params.id);
-      }
-    }, [route.params])
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     if (route.params && route.params.id) {
+  //       alert("Net");
+  //       setCurrentSectionId(route.params.id);
+  //       setIsIdFromParams(true);
+  //     }
+  //   }, [route.params])
+  // );
   useFocusEffect(
     useCallback(() => {
       console.log(route);
@@ -84,9 +90,9 @@ export default function Home({ navigation, route }: any) {
         }
       };
       fetchWeather();
-      // alert(sections);
+      // alert(currentSectionId);
       console.log(sections);
-      if (sections.length && !currentSectionId) {
+      if (sections.length && (!currentSectionId || route.params )) {
         setCurrentSectionId(sections[0].id);
       }
     }, [])
@@ -112,12 +118,14 @@ export default function Home({ navigation, route }: any) {
 
   function RoomText({ item }: { item: { index: number; item: Section } }) {
     function onClick() {
+
       if (currentSectionId === item.item.id) {
         return;
       }
       setCurrentSectionId(item.item.id.toString());
       switchList();
     }
+    // alert(currentSectionId);
     let style: any = [styles.roomItem];
     if (item.index === 0) {
       style.push({ paddingLeft: 32 });
@@ -135,18 +143,9 @@ export default function Home({ navigation, route }: any) {
   }
 
   const flatListRef = useRef<FlatList<any>>(null);
-  const scrollY = useRef(0);
-
-  const handleScroll = (event: any) => {
-    scrollY.current = event.nativeEvent.contentOffset.y;
-  };
-
   const switchList = () => {
     if (flatListRef.current) {
-      flatListRef.current.scrollToOffset({
-        offset: scrollY.current,
-        animated: false,
-      });
+      flatListRef.current.scrollToIndex({index: 0, animated: false})
     }
   };
 
@@ -216,7 +215,7 @@ export default function Home({ navigation, route }: any) {
                 <Pressable
                   onPress={() => {
                     switchDisplayAddBlock();
-                    navigation.navigate("RemoveRoomSection");
+                    navigation.navigate("RemoveRoomSection", {"id": currentSectionId});
                   }}
                 >
                   <View style={[styles.plusContainer]}>
@@ -258,8 +257,10 @@ export default function Home({ navigation, route }: any) {
               marginTop: 10,
               borderTopWidth: 1,
               borderBottomWidth: 1,
-              borderColor: "rgba(35, 40, 44, 0.3)",
+              borderColor: "rgba(35, 40, 44, 0.2)",
             }}
+            ref={firstList}
+            onContentSizeChange={() => firstList.current?.scrollToEnd({animated: true})}
             showsHorizontalScrollIndicator={false}
             horizontal={true}
             data={sections.length > 0 ? sections : []}
@@ -270,7 +271,6 @@ export default function Home({ navigation, route }: any) {
             style={styles.roomsList}
             showsHorizontalScrollIndicator={false}
             ref={flatListRef}
-            onScroll={handleScroll}
             horizontal={true}
             data={currentRoomsArray.length > 0 ? currentRoomsArray : []}
             keyExtractor={(item, index) => index.toString()}
