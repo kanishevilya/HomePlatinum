@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import ColorPalette from "./pages/ColorPalette";
 import AddRoomSection from "./pages/AddRoomSection";
 import { RoomsProvider } from "./RoomsContext";
+import RemoveRoomSection from "./pages/RemoveRoomSection";
 const RootStack = createNativeStackNavigator();
 
 export default function App() {
@@ -46,6 +47,11 @@ export default function App() {
               <RootStack.Screen
                 name="AddRoomSection"
                 component={AddRoomSection}
+                options={({ navigation, route }) => ({ headerShown: false })}
+              />
+              <RootStack.Screen
+                name="RemoveRoomSection"
+                component={RemoveRoomSection}
                 options={({ navigation, route }) => ({ headerShown: false })}
               />
             </RootStack.Group>

@@ -56,6 +56,7 @@ type RoomsContextType = {
   addRoomToSection: (sectionId: string, roomName: string) => void;
   getSections: () => Section[];
   getRooms: () => Room[];
+  removeSection: (id: string | number[] ) => void;
 };
 
 const RoomsContext = createContext<RoomsContextType>({} as RoomsContextType);
@@ -118,12 +119,25 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
 
   const addSection = (name: string) => {
     if (!sections.some((section) => section.name === name)) {
-      const newId=uuid.v4();
+      const newId = uuid.v4();
       const newSection = { id: newId, name, roomIds: [] } as Section;
       setSections((prevSections) => [...prevSections, newSection]);
       return newId;
     }
     return null;
+  };
+
+  const removeSection = (id: string | number[]) => {
+    setSections((prevSections) => 
+      prevSections.filter((section) => section.id !== id)
+    );
+  
+    setRooms((prevRooms) =>
+      prevRooms.map((room) => ({
+        ...room,
+        sectionIds: room.sectionIds.filter((sectionId) => sectionId !== id)
+      }))
+    );
   };
 
   const addRoomToSection = (sectionId: string, roomName: string) => {
@@ -164,6 +178,7 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
         addRoomToSection,
         getSections,
         getRooms,
+        removeSection,
       }}
     >
       {children}

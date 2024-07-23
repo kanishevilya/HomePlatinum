@@ -41,10 +41,11 @@ export default function Home({ navigation, route }: any) {
 
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState<WeatherType | null>(null);
-  const [currentSectionId, setCurrentSectionId] = useState<string | number[] | null>(null);
+  const [currentSectionId, setCurrentSectionId] = useState<
+    string | number[] | null
+  >(null);
   const [currentRoomsArray, setCurrentRoomsArray] = useState<Room[]>([]);
   const [displayAddBlock, setDisplayAddBlock] = useState(false);
-
 
   const currentDay = getFormattedDate();
 
@@ -53,17 +54,17 @@ export default function Home({ navigation, route }: any) {
   }
   console.log(route);
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log(route);
-    if(route.params && route.params.id){
+    if (route.params && route.params.id) {
       console.log("Ura?");
       setCurrentSectionId(route.params.id);
     }
-  },[]);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
-      if(route.params && route.params.id){
+      if (route.params && route.params.id) {
         setCurrentSectionId(route.params.id);
       }
     }, [route.params])
@@ -88,12 +89,13 @@ export default function Home({ navigation, route }: any) {
       if (sections.length && !currentSectionId) {
         setCurrentSectionId(sections[0].id);
       }
-      
     }, [])
   );
 
   useEffect(() => {
-    console.log(currentSectionId);
+    if (sections.length && !currentSectionId) {
+      setCurrentSectionId(sections[0].id);
+    }
     if (currentSectionId) {
       const section = sections.find((sec) => sec.id === currentSectionId);
       console.log(section);
@@ -210,6 +212,13 @@ export default function Home({ navigation, route }: any) {
                   <View style={[styles.plusContainer]}>
                     <Icon name="plus" color="white" size={32} />
                   </View>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    switchDisplayAddBlock();
+                    navigation.navigate("RemoveRoomSection");
+                  }}
+                >
                   <View style={[styles.plusContainer]}>
                     <Icon name="minus" color="white" size={32} />
                   </View>

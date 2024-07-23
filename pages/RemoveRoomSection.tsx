@@ -1,3 +1,144 @@
-export default function RemoveRoomSection(){
-    
+import React, { useState } from "react";
+import { View, StyleSheet, Text, Pressable, Alert, FlatList } from "react-native";
+import Icon from "../components/Icon";
+import { Section, useRooms } from "../RoomsContext";
+
+export default function RemoveRoomSection({ navigation }: any) {
+  const { sections, removeSection } = useRooms();
+  const [selectedSection, setSelectedSection] = useState<string | number[] | null>(null);
+
+  const handleRemovePress = (sectionId: string | number[]) => {
+    // Найти секцию
+    const section = sections.find(sec => sec.id === sectionId);
+
+    if (!section) return;
+
+    // Проверить наличие комнат в секции
+    if (section.roomIds.length > 0) {
+      Alert.alert(
+        "Cannot Remove Section",
+        "This section contains rooms. Please remove the rooms before deleting the section.",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+
+    // Удаление секции
+    removeSection(sectionId);
+    setSelectedSection(null); // Снять выделение секции
+  };
+
+  const renderSection = ({ item }: { item: Section }) => (
+    <View style={styles.sectionContainer}>
+      <Pressable
+        style={[
+          styles.sectionItem,
+          { backgroundColor: selectedSection === item.id ? "#e0e0e0" : "#f9f9f9" }
+        ]}
+        onPress={() => setSelectedSection(item.id)}
+      >
+        {item.roomIds.length > 0 && selectedSection === item.id && (
+          <Icon name="warning" color="#ff4d4d" size={24} addStyle={styles.warningIcon} />
+        )}
+        <View style={styles.sectionContent}>
+          <Text style={styles.sectionText}>{item.name}</Text>
+          <Text style={styles.roomCount}>{item.roomIds.length} rooms</Text>
+        </View>
+        {selectedSection === item.id && (
+          <Pressable
+            style={styles.removeButton}
+            onPress={() => handleRemovePress(item.id)}
+          >
+            <Text style={styles.removeButtonText}>Remove</Text>
+          </Pressable>
+        )}
+      </Pressable>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Pressable onPress={() => navigation.goBack()} style={styles.goBackContainer}>
+        <Icon name="arrow-circle-left" color="#23282C" size={42} />
+        <Text style={styles.goBackText}>Go Back</Text>
+      </Pressable>
+      <Text style={styles.title}>Remove Room Sections</Text>
+      <FlatList
+        data={sections}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderSection}
+        contentContainerStyle={styles.list}
+      />
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    padding: 20,
+  },
+  goBackContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    marginBottom: 40,
+    marginTop: 40,
+  },
+  goBackText: {
+    fontSize: 24,
+    color: "#23282C",
+    fontWeight: "700",
+    marginLeft: 15,
+  },
+  title: {
+    textAlign: "center",
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 20,
+    color: "#23282C",
+  },
+  sectionContainer: {
+    marginVertical: 10,
+  },
+  sectionItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 15,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+  },
+  sectionContent: {
+    flex: 1,
+    flexDirection: "column",
+  },
+  sectionText: {
+    fontSize: 18,
+    color: "#23282C",
+  },
+  roomCount: {
+    fontSize: 14,
+    color: "#888",
+    marginTop: 5,
+  },
+  warningIcon: {
+    marginRight: 15,
+
+  },
+  removeButton: {
+    backgroundColor: "#ff4d4d",
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  removeButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  list: {
+    marginTop: 20,
+  },
+});
