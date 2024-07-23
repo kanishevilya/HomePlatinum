@@ -10,19 +10,19 @@ import uuid from "react-native-uuid";
 
 export type Room = {
   id: string | number[];
-  namesOfSection: string[]; // Например, у нас есть комната "Детская", она может относиться к разделам LivingRoom и Study Room одновременно
-  nameOfRoom: string;
+  sectionIds: (string | number[])[];
+  name: string;
   image: string;
   devices: Device[];
 };
 
-export type SectionOfRooms = {
+export type Section = {
   id: string | number[];
-  nameOfSection: string;
-  roomsArray: Room[];
+  name: string;
+  roomIds: (string | number[])[];
 };
 
-const RoomsInSection: Record<string, string[]> = {
+const initialSections: Record<string, string[]> = {
   "Living Room": [
     "Media Room",
     "Home Theater",
@@ -47,202 +47,123 @@ const RoomsInSection: Record<string, string[]> = {
   Restrooms: ["Restroom", "Laundry"],
 };
 
-export const SectionNames = [
-  "Living Room",
-  "Kitchen",
-  "Study Room",
-  "Restrooms",
-];
-
-// export function AddSectionName(name: string) {
-//   SectionNames.push(name);
-//   RoomsInSection[name] = [];
-// }
-
-// const RoomsMock: SectionOfRooms[] = [];
-
-// export function RoomsDataInit() {
-//   const roomMap = new Map<string, Room>();
-//   // console.log(SectionNames);
-//   for (let section of SectionNames) {
-//     const roomsArray: Room[] = RoomsInSection[section].map((roomName) => {
-//       if (roomMap.has(roomName)) {
-//         const existingRoom = roomMap.get(roomName)!;
-//         existingRoom.namesOfSection.push(section);
-//         return existingRoom;
-//       } else {
-//         const newRoom: Room = {
-//           id: uuid.v4(),
-//           namesOfSection: [section],
-//           nameOfRoom: roomName,
-//           image: "",
-//           devices: [],
-//         };
-//         roomMap.set(roomName, newRoom);
-//         return newRoom;
-//       }
-//     });
-
-//     RoomsMock.push({
-//       id: uuid.v4(),
-//       nameOfSection: section,
-//       roomsArray: roomsArray,
-//     });
-//   }
-//   console.log(RoomsMock);
-// }
-
-// export default function RoomsDataMock() {
-//   if (RoomsMock.length) {
-//     return RoomsMock;
-//   } else {
-//     RoomsDataInit();
-//     return RoomsMock;
-//   }
-// }
+export const sectionNames = Object.keys(initialSections);
 
 type RoomsContextType = {
-  rooms: SectionOfRooms[];
-  sectionNames: string[];
-  roomsInSection: Record<string, string[]>;
-  GetRoomsData: () => SectionOfRooms[];
-  RoomsDataInit: (_sectionNames: string[]) => void;
-  AddSectionName: (name: string) => void;
+  sections: Section[];
+  rooms: Room[];
+  addSection: (name: string) => string | number[] | null;
+  addRoomToSection: (sectionId: string, roomName: string) => void;
+  getSections: () => Section[];
+  getRooms: () => Room[];
 };
 
 const RoomsContext = createContext<RoomsContextType>({} as RoomsContextType);
 
 export function RoomsProvider({ children }: { children: ReactNode }) {
-  const [rooms, setRooms] = useState<SectionOfRooms[]>([]);
-  const [sectionNames, setSectionNames] = useState<string[]>([]);
-  const [roomsInSection, setRoomsInSection] = useState<
-    Record<string, string[]>
-  >({ "": [] });
+  const [sections, setSections] = useState<Section[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadRooms = async () => {
-      let savedRooms = (await AsyncStorage.getItem("rooms")) as string;
-      if (savedRooms) {
-        let parsedRooms = JSON.parse(savedRooms);
-        setRooms(parsedRooms);
-      } else {
-        setRooms([]);
-      }
-    };
-    const loadSections = async () => {
-      let savedSections = (await AsyncStorage.getItem("sections")) as string;
+    const loadData = async () => {
+      const savedSections = await AsyncStorage.getItem("sections");
+      const savedRooms = await AsyncStorage.getItem("rooms");
+
       if (savedSections) {
-        let parsedSections = JSON.parse(savedSections);
-        setSectionNames(parsedSections);
+        setSections(JSON.parse(savedSections));
       } else {
-        setSectionNames(SectionNames);
+        const sectionArray: Section[] = [];
+        const roomArray: Room[] = [];
+
+        sectionNames.forEach((name) => {
+          const sectionId = uuid.v4();
+          const roomIds = initialSections[name].map((roomName) => {
+            const roomId = uuid.v4();
+            roomArray.push({
+              id: roomId,
+              sectionIds: [sectionId],
+              name: roomName,
+              image: "",
+              devices: [],
+            });
+            return roomId;
+          });
+
+          sectionArray.push({
+            id: sectionId,
+            name,
+            roomIds,
+          });
+        });
+        setSections(sectionArray);
+        setRooms(roomArray);
       }
-    };
-    const loadRoomsInSection = async () => {
-      let savedRoomsInSections = (await AsyncStorage.getItem(
-        "roomsInSection"
-      )) as string;
-      if (savedRoomsInSections) {
-        let parsedRoomsInSections = JSON.parse(savedRoomsInSections);
-        setRoomsInSection(parsedRoomsInSections);
-      } else {
-        setRoomsInSection(RoomsInSection);
+      if (savedRooms) {
+        setRooms(JSON.parse(savedRooms));
       }
+
+      setIsLoading(false);
     };
-    loadRooms();
-    loadSections();
-    loadRoomsInSection();
+
+    loadData();
   }, []);
 
   useEffect(() => {
-    const saveRooms = async () => {
-      await AsyncStorage.setItem("rooms", JSON.stringify(rooms));
-    };
-    saveRooms();
-  }, [rooms]);
+    if (!isLoading) {
+      AsyncStorage.setItem("sections", JSON.stringify(sections));
+      AsyncStorage.setItem("rooms", JSON.stringify(rooms));
+    }
+  }, [sections, rooms, isLoading]);
 
-  useEffect(() => {
-    // console.log("BBB");
-    const saveSectionNames = async () => {
-      await AsyncStorage.setItem("sections", JSON.stringify(sectionNames));
-    };
-    saveSectionNames();
-  }, [sectionNames]);
+  const addSection = (name: string) => {
+    if (!sections.some((section) => section.name === name)) {
+      const newId=uuid.v4();
+      const newSection = { id: newId, name, roomIds: [] } as Section;
+      setSections((prevSections) => [...prevSections, newSection]);
+      return newId;
+    }
+    return null;
+  };
 
-  useEffect(() => {
-    console.log("CCC");
-    console.log(roomsInSection);
-    const saveRoomsInSection = async () => {
-      await AsyncStorage.setItem(
-        "roomsInSection",
-        JSON.stringify(roomsInSection)
+  const addRoomToSection = (sectionId: string, roomName: string) => {
+    const section = sections.find((section) => section.id === sectionId);
+    if (section && !rooms.some((room) => room.name === roomName)) {
+      const newRoomId = uuid.v4();
+      const newRoom: Room = {
+        id: newRoomId,
+        sectionIds: [sectionId],
+        name: roomName,
+        image: "",
+        devices: [],
+      };
+
+      setRooms((prevRooms) => [...prevRooms, newRoom]);
+
+      const updatedSections = sections.map((section) =>
+        section.id === sectionId
+          ? ({
+              ...section,
+              roomIds: [...section.roomIds, newRoomId],
+            } as Section)
+          : section
       );
-    };
-    saveRoomsInSection();
-  }, [roomsInSection]);
-
-  function RoomsDataInit(_sectionNames: string[] = sectionNames) {
-    const roomMap = new Map<string, Room>();
-    // console.log(SectionNames);
-    const _rooms: SectionOfRooms[] = [];
-    console.log(_sectionNames);
-    for (let section of _sectionNames) {
-      console.log(section);
-      const roomsArray: Room[] = roomsInSection[section]?.map((roomName) => {
-        if (roomMap.has(roomName)) {
-          const existingRoom = roomMap.get(roomName)!;
-          existingRoom.namesOfSection.push(section);
-          return existingRoom;
-        } else {
-          const newRoom: Room = {
-            id: uuid.v4(),
-            namesOfSection: [section],
-            nameOfRoom: roomName,
-            image: "",
-            devices: [],
-          };
-          roomMap.set(roomName, newRoom);
-          return newRoom;
-        }
-      }) ?? [];
-      console.log(roomsArray);
-      _rooms.push({
-        id: uuid.v4(),
-        nameOfSection: section,
-        roomsArray: roomsArray,
-      });
+      setSections(updatedSections);
     }
+  };
 
-    setRooms(_rooms);
-    return _rooms;
-  }
-
-  function GetRoomsData() {
-    if (rooms.length) {
-      return rooms;
-    } else {
-      return RoomsDataInit();
-    }
-  }
-
-  function AddSectionName(name: string) {
-    if (!sectionNames.includes(name)) {
-      let _sectionNames = [...sectionNames, name];
-      setSectionNames(_sectionNames);
-      setRoomsInSection((prev) => ({ ...prev, [name]: [] }));
-      RoomsDataInit(_sectionNames);
-    }
-  }
+  const getSections = () => sections;
+  const getRooms = () => rooms;
 
   return (
     <RoomsContext.Provider
       value={{
+        sections,
         rooms,
-        sectionNames,
-        roomsInSection,
-        GetRoomsData,
-        RoomsDataInit,
-        AddSectionName,
+        addSection,
+        addRoomToSection,
+        getSections,
+        getRooms,
       }}
     >
       {children}

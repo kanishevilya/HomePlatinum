@@ -1,16 +1,12 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useRef, useState } from "react";
-
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Button,
   Dimensions,
   FlatList,
-  ImageBackground,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import {
@@ -20,8 +16,10 @@ import {
 } from "../components/WeatherData";
 import { WeatherIcon } from "../components/WeatherIcon";
 import Icon from "../components/Icon";
-import { Room, SectionOfRooms, useRooms } from "../RoomsContext";
+import { Room, Section, useRooms } from "../RoomsContext";
 import RoomCard from "../components/RoomCard";
+import { useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const bedroomImage = require("../assets/images/Bedroom.png");
 
@@ -38,113 +36,98 @@ type RoomTextType = {
   name: string;
 };
 
-export default function Home({ navigation }: any) {
-  const { GetRoomsData, sectionNames } = useRooms();
+export default function Home({ navigation, route }: any) {
+  const { sections, rooms } = useRooms();
 
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState<WeatherType | null>(null);
-  const [currentRoomSection, setCurrentRoom] = useState("");
-  const [currentRoomsArray, setCurrentRoomsArray] = useState<Room[] | null>(
-    null
-  );
-  const [currentFilteredRoomsArray, setCurrentFilteredRoomsArray] = useState<
-    Room[]
-  >([]);
-
+  const [currentSectionId, setCurrentSectionId] = useState<string | number[] | null>(null);
+  const [currentRoomsArray, setCurrentRoomsArray] = useState<Room[]>([]);
   const [displayAddBlock, setDisplayAddBlock] = useState(false);
 
-  const [nameFilter, setNameFilter] = useState("");
 
   const currentDay = getFormattedDate();
-  // const [roomsDataWithoutFilters, setRoomsDataWithoutFilters]=useState<SectionOfRooms[] | null>(null);
-  const [roomsData, setRoomsData] = useState<SectionOfRooms[] | null>(null);
 
   function switchDisplayAddBlock() {
     setDisplayAddBlock(!displayAddBlock);
   }
+  console.log(route);
 
-  useEffect(() => {
-    const fetchWeather = async () => {
-      let dataLoc = await WeatherDataLocation();
-      if (!dataLoc.Error) {
-        console.log(dataLoc);
-        let _city = dataLoc[0].name;
-        setCity(_city);
-        let dataWeather = await WeatherData(_city);
-        console.log(dataWeather);
-        if (dataWeather) {
-          setWeather(dataWeather);
+  useEffect(()=>{
+    console.log(route);
+    if(route.params && route.params.id){
+      console.log("Ura?");
+      setCurrentSectionId(route.params.id);
+    }
+  },[]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if(route.params && route.params.id){
+        setCurrentSectionId(route.params.id);
+      }
+    }, [route.params])
+  );
+  useFocusEffect(
+    useCallback(() => {
+      console.log(route);
+      const fetchWeather = async () => {
+        let dataLoc = await WeatherDataLocation();
+        if (!dataLoc.Error) {
+          let _city = dataLoc[0].name;
+          setCity(_city);
+          let dataWeather = await WeatherData(_city);
+          if (dataWeather) {
+            setWeather(dataWeather);
+          }
         }
+      };
+      fetchWeather();
+      // alert(sections);
+      console.log(sections);
+      if (sections.length && !currentSectionId) {
+        setCurrentSectionId(sections[0].id);
       }
-    };
-    fetchWeather();
-    let data = GetRoomsData();
-    console.log(data);
-    setRoomsData(data);
-    // setRoomsDataWithoutFilters(mock);
-    setCurrentRoom(data[0].nameOfSection);
-    console.log(data[0].nameOfSection);
-  }, []);
+      
+    }, [])
+  );
+
   useEffect(() => {
-    let curRoomArr = null;
-    if (roomsData) {
-      let genData = roomsData.filter(
-        (i) => i.nameOfSection == currentRoomSection
-      );
-      if (genData.length) {
-        curRoomArr = genData[0].roomsArray;
+    console.log(currentSectionId);
+    if (currentSectionId) {
+      const section = sections.find((sec) => sec.id === currentSectionId);
+      console.log(section);
+      if (section) {
+        const filteredRooms = rooms.filter((room) =>
+          room.sectionIds.includes(currentSectionId)
+        );
+        setCurrentRoomsArray(filteredRooms);
+      } else {
+        setCurrentRoomsArray([]);
       }
     }
-    setCurrentRoomsArray(curRoomArr);
-    // setCurrentFilteredRoomsArray(curRoomArr ?? []);
-    // filterByName("");
-    // if(!currentFilteredRoomsArray.length){
-    //   setCurrentFilteredRoomsArray(curRoomArr?? []);
-    // }
-  }, [currentRoomSection]);
+  }, [currentSectionId, sections, rooms]);
 
-  function filterByName(name: string, curRoomArr: [] = []) {
-    if (curRoomArr.length) {
-      setCurrentFilteredRoomsArray(curRoomArr);
-    }
-    if (!currentRoomsArray) {
-      return;
-    }
-    if (!name.trim()) {
-      setCurrentFilteredRoomsArray(currentRoomsArray);
-      return;
-    }
-    const filteredArray = currentRoomsArray.filter((room) =>
-      room.nameOfRoom.toLowerCase().includes(name.toLowerCase().trim())
-    );
-    setCurrentFilteredRoomsArray(filteredArray);
-  }
-
-  function RoomText({
-    item,
-  }: {
-    item: { index: number; item: SectionOfRooms };
-  }) {
+  function RoomText({ item }: { item: { index: number; item: Section } }) {
     function onClick() {
-      if (currentRoomSection == item.item.nameOfSection) {
+      if (currentSectionId === item.item.id) {
         return;
       }
-      setCurrentRoom(item.item.nameOfSection);
+      setCurrentSectionId(item.item.id.toString());
       switchList();
     }
-    let s: any[] = [styles.roomItem];
-    // console.log(SectionNamesMock);
-    if (item.index == 0) {
-      s.push({ paddingLeft: 32 });
-    } else if (item.index == sectionNames.length - 1) {
-      s.push({ paddingRight: 32 });
+    let style: any = [styles.roomItem];
+    if (item.index === 0) {
+      style.push({ paddingLeft: 32 });
+    } else if (item.index === sections.length - 1) {
+      style.push({ paddingRight: 32 });
     }
-    if (item.item.nameOfSection == currentRoomSection) {
-      s.push({ opacity: 1 });
+    if (item.item.id === currentSectionId) {
+      style.push({ opacity: 1 });
     }
     return (
       <Pressable onPress={onClick} style={{ paddingVertical: 20 }}>
-        <Text style={s}>{item.item.nameOfSection}</Text>
+        <Text style={style}>{item.item.name}</Text>
       </Pressable>
     );
   }
@@ -176,7 +159,6 @@ export default function Home({ navigation }: any) {
             <LinearGradient
               style={styles.weatherIconBlock}
               colors={["#68bce3", "#81D4FA", "#bae9ff"]}
-              // colors={["rgba(104, 188, 227, 1)", "rgba(104, 188, 227, 0.5)", "rgba(104, 188, 227, 0)"]}
             >
               <WeatherIcon weather={weather} />
               <View style={styles.textContainer}>
@@ -213,17 +195,6 @@ export default function Home({ navigation }: any) {
           </View>
         </View>
       </LinearGradient>
-      {/* <View style={{ flexDirection: "row" }}>
-        <TextInput
-          style={styles.input}
-          value={nameFilter}
-          onChangeText={(n) => {
-            setNameFilter(n);
-            filterByName(n);
-          }}
-        />
-        <Button title="Filter" onPress={() => filterByName(nameFilter)} />
-      </View> */}
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <View style={styles.sideMenu}>
           {displayAddBlock && (
@@ -231,7 +202,10 @@ export default function Home({ navigation }: any) {
               <View style={styles.addGenView}>
                 <Text style={styles.hiddenPanelText}>Sections</Text>
                 <Pressable
-                  onPress={() => {switchDisplayAddBlock(); navigation.navigate("AddRoomSection");}}
+                  onPress={() => {
+                    switchDisplayAddBlock();
+                    navigation.navigate("AddRoomSection");
+                  }}
                 >
                   <View style={[styles.plusContainer]}>
                     <Icon name="plus" color="white" size={32} />
@@ -270,40 +244,35 @@ export default function Home({ navigation }: any) {
               : styles.mainView
           }
         >
-          {roomsData && (
-            <FlatList
-              style={{
-                marginTop: 10,
-                borderTopWidth: 1,
-                borderBottomWidth: 1,
-                borderColor: "rgba(35, 40, 44, 0.3)",
-              }}
-              showsHorizontalScrollIndicator={false}
-              horizontal={true}
-              data={roomsData}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={(item) => <RoomText item={item} />}
-            />
-          )}
-          {roomsData &&
-            (currentFilteredRoomsArray.length > 0 || currentRoomsArray) && (
-              <FlatList
-                style={styles.roomsList}
-                showsHorizontalScrollIndicator={false}
-                ref={flatListRef}
-                onScroll={handleScroll}
-                horizontal={true}
-                data={currentRoomsArray}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={(item) => (
-                  <RoomCard
-                    item={item}
-                    currentRoomsArray={currentRoomsArray}
-                    bedroomImage={bedroomImage}
-                  />
-                )}
+          <FlatList
+            style={{
+              marginTop: 10,
+              borderTopWidth: 1,
+              borderBottomWidth: 1,
+              borderColor: "rgba(35, 40, 44, 0.3)",
+            }}
+            showsHorizontalScrollIndicator={false}
+            horizontal={true}
+            data={sections.length > 0 ? sections : []}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={(item) => <RoomText item={item} />}
+          />
+          <FlatList
+            style={styles.roomsList}
+            showsHorizontalScrollIndicator={false}
+            ref={flatListRef}
+            onScroll={handleScroll}
+            horizontal={true}
+            data={currentRoomsArray.length > 0 ? currentRoomsArray : []}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={(item) => (
+              <RoomCard
+                currentRoomsArray={currentRoomsArray}
+                item={item}
+                bedroomImage={bedroomImage}
               />
             )}
+          />
         </View>
       </View>
       <Button

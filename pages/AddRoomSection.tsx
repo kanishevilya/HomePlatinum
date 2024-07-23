@@ -4,30 +4,31 @@ import Icon from "../components/Icon";
 import { useNavigation } from "@react-navigation/native";
 import { useRooms } from "../RoomsContext";
 
-export default function AddRoomSection({navigation}:any) {
-  // const navigation = useNavigation();
-  const [nameOfSection, setNameOfSection] = useState("");
-  const {sectionNames, AddSectionName} = useRooms();
-
-  const handleAddPress = () => {
+export default function AddRoom({ navigation }: any) {
+  const [ nameOfSection, setNameOfSection] = useState("");
+  const { rooms, addSection } = useRooms();
+  // console.log(route);
+  const handleAddPress = async () => {
     const trimmedName = nameOfSection.trim();
 
-    if (trimmedName == '') {
-      Alert.alert('Error', 'Room Section name cannot be empty!');
+    if (trimmedName === "") {
+      Alert.alert("Error", "Room Section cannot be empty!");
       return;
     }
 
-    const isDuplicate = sectionNames.some(
-      (section) => section.trim().toLowerCase() === trimmedName.toLowerCase()
+    const isDuplicate = rooms.some(
+      (room) => room.name.trim().toLowerCase() === trimmedName.toLowerCase()
     );
 
     if (isDuplicate) {
-      Alert.alert('Error', 'Room Section with the same name already exists!');
+      Alert.alert("Error", "Room Section with the same name already exists!");
       return;
     }
-    AddSectionName(trimmedName);
-    setNameOfSection('');
-    navigation.navigate("Home");
+
+    const id=addSection(trimmedName);
+    setNameOfSection("");
+    // console.log(id);
+    navigation.navigate("Home", {"id": id});
   };
 
   return (
@@ -55,15 +56,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    // alignItems: "center",
-    // justifyContent: "center",
     padding: 20,
   },
   goBackContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "flex-start",
-    // backgroundColor: 'pink',
     marginBottom: 40,
     marginTop: 40,
   },
@@ -74,7 +72,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   title: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
@@ -87,16 +85,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#23282C",
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    backgroundColor: "white",
-    paddingHorizontal: 15,
+    borderColor: "gray",
+    borderRadius: 5,
+    paddingHorizontal: 10,
     marginBottom: 20,
   },
   btn: {
     width: "100%",
     height: 50,
-    borderRadius: 8,
+    borderRadius: 5,
     backgroundColor: "#23282C",
     alignItems: "center",
     justifyContent: "center",

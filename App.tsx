@@ -22,6 +22,11 @@ export default function App() {
           <RootStack.Navigator>
             <RootStack.Group>
               <RootStack.Screen
+                name="Home"
+                component={Home}
+                options={({ navigation, route }) => ({ headerShown: false })}
+              />
+              <RootStack.Screen
                 name="Login"
                 component={Login}
                 options={({ navigation }) => ({ headerShown: false })}
@@ -29,11 +34,6 @@ export default function App() {
               <RootStack.Screen
                 name="Register"
                 component={Register}
-                options={({ navigation }) => ({ headerShown: false })}
-              />
-              <RootStack.Screen
-                name="Home"
-                component={Home}
                 options={({ navigation }) => ({ headerShown: false })}
               />
             </RootStack.Group>
@@ -46,7 +46,7 @@ export default function App() {
               <RootStack.Screen
                 name="AddRoomSection"
                 component={AddRoomSection}
-                options={({ navigation }) => ({ headerShown: false })}
+                options={({ navigation, route }) => ({ headerShown: false })}
               />
             </RootStack.Group>
           </RootStack.Navigator>

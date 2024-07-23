@@ -11,12 +11,13 @@ import {
   TouchableWithoutFeedback,
   Pressable,
 } from "react-native";
-import { Room } from "./RoomsData";
+
 import { LinearGradient } from "expo-linear-gradient";
 import Icon from "./Icon";
 
 import EditIcon from "../assets/images/EditIcon.svg";
 import LockIcon from "../assets/images/LockIcon.svg";
+import { Room } from "../RoomsContext";
 
 function RoomCardWithoutAnimation({
   item,
@@ -60,7 +61,7 @@ function RoomCardWithoutAnimation({
             colors={["rgba(255,255,255, 0.4)", "rgba(0,0,0, 0.7)"]}
           />
         </ImageBackground>
-        <Text style={styles.roomTitle}>{item.item.nameOfRoom}</Text>
+        <Text style={styles.roomTitle}>{item.item.name}</Text>
         <Text style={styles.roomDevices}>
           {item.item.devices.length} Devices
         </Text>
@@ -81,7 +82,7 @@ export default function RoomCard({
   const pan = useRef(new Animated.ValueXY()).current;
   const maxOffset = 80;
   const threshold = 70;
-
+  // console.log(item.item);
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -98,7 +99,7 @@ export default function RoomCard({
       },
       onPanResponderRelease: (e, gestureState) => {
         if (gestureState.dy > threshold) {
-          alert("Room: "+item.item.nameOfRoom+" "+item.item.id);
+          alert("Room: "+item.item.name+" "+item.item.id);
         }
         Animated.spring(pan, {
           toValue: { x: 0, y: 0 },
