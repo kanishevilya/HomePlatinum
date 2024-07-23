@@ -57,7 +57,7 @@ export default function RemoveRoomSection({ navigation, route }: any) {
     setRemoveSwitcher(!removeSwitcher);
   };
 
-  const handleRoomSelect = (roomId: string | number[]) => {
+  const toggleRoomSelect = (roomId: string | number[]) => {
     setSelectedRooms((prevSelected) =>
       prevSelected.includes(roomId)
         ? prevSelected.filter((id) => id !== roomId)
@@ -83,7 +83,7 @@ export default function RemoveRoomSection({ navigation, route }: any) {
             : "#f9f9f9",
         },
       ]}
-      onPress={() => handleRoomSelect(item.id)}
+      onPress={() => toggleRoomSelect(item.id)}
     >
       <Text style={styles.roomText}>{item.name}</Text>
     </Pressable>

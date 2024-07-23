@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Pressable,
+  PanResponderGestureState,
+  GestureResponderEvent,
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
@@ -18,6 +20,8 @@ import Icon from "./Icon";
 import EditIcon from "../assets/images/EditIcon.svg";
 import LockIcon from "../assets/images/LockIcon.svg";
 import { Room } from "../RoomsContext";
+
+const bedroomImage = require("../assets/images/Bedroom.png");
 
 function RoomCardWithoutAnimation({
   item,
@@ -43,7 +47,7 @@ function RoomCardWithoutAnimation({
   // }
 
   return (
-    <Pressable onPress={() => alert("a")}>
+    <Pressable onPress={() => alert(item.item.id)}>
       <LinearGradient
         style={styles.roomCard}
         start={[0, 0]}
@@ -54,7 +58,7 @@ function RoomCardWithoutAnimation({
         <ImageBackground
           style={styles.roomImage}
           imageStyle={{ borderRadius: 16 }}
-          source={image}
+          source={image.trim() ? {uri: image} : bedroomImage}
         >
           <LinearGradient
             style={styles.imageShadow}
@@ -74,20 +78,37 @@ export default function RoomCard({
   item,
   currentRoomsArray,
   image,
+  navigation,
 }: {
   item: { index: number; item: Room };
   currentRoomsArray: Room[] | null;
   image: any;
+  navigation: any;
 }) {
   const pan = useRef(new Animated.ValueXY()).current;
   const maxOffset = 80;
   const threshold = 70;
   // console.log(item.item);
-  const panResponder = useRef(
-    PanResponder.create({
+  // console.log(currentRoomsArray);
+
+  const handlePanResponderRelease = useCallback(
+    (evn: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+      if (gestureState.dy > threshold) {
+        // console.log("Navigating to EditRoom with id:", item.item.id);
+        navigation.navigate("EditRoom", { roomId: item.item.id });
+      }
+      Animated.spring(pan, {
+        toValue: { x: 0, y: 0 },
+        useNativeDriver: false,
+      }).start();
+    },
+    [pan, threshold, navigation, item.item.id]
+  );
+
+  const panResponder = useMemo(() => {
+    return PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: (evt, gestureState) => {
-        // Проверяем только вертикальные жесты
         return (
           Math.abs(gestureState.dy) > Math.abs(gestureState.dx) &&
           Math.abs(gestureState.dx) < 30
@@ -97,24 +118,15 @@ export default function RoomCard({
         const newY = Math.max(0, Math.min(gestureState.dy, maxOffset));
         pan.setValue({ x: 0, y: newY });
       },
-      onPanResponderRelease: (e, gestureState) => {
-        if (gestureState.dy > threshold) {
-          alert("Room: "+item.item.name+" "+item.item.id);
-        }
-        Animated.spring(pan, {
-          toValue: { x: 0, y: 0 },
-          useNativeDriver: false,
-        }).start();
-      },
+      onPanResponderRelease: handlePanResponderRelease,
       onPanResponderTerminate: () => {
         Animated.spring(pan, {
           toValue: { x: 0, y: 0 },
           useNativeDriver: false,
         }).start();
       },
-    })
-  ).current;
-
+    });
+  }, [handlePanResponderRelease, pan, maxOffset]);
   let s: any[] = [];
   let styleAdditional = null;
   if (item.index === 0) {
@@ -130,7 +142,7 @@ export default function RoomCard({
     <View style={[styles.container, s]}>
       <View style={styles.editView}>
         {/* <Icon name="edit" color="#23282C" size={55} /> */}
-        <EditIcon style={{marginLeft: -10}}/>
+        <EditIcon style={{ marginLeft: -10 }} />
         <Text style={styles.editText}>EDIT</Text>
       </View>
 
@@ -145,6 +157,7 @@ export default function RoomCard({
         }}
         // {...panResponder.panHandlers}
       >
+        {/* <Text>{item.item.image.substring(0, 40)}</Text> */}
         <RoomCardWithoutAnimation
           item={item}
           currentRoomsArray={currentRoomsArray}
@@ -165,12 +178,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     // justifyContent: "center",
   },
-  editText:{
+  editText: {
     fontSize: 40,
-    fontWeight: '300'
+    fontWeight: "300",
   },
   editView: {
-    flexDirection: 'row',
+    flexDirection: "row",
     height: 200,
     width: 240,
     justifyContent: "center",

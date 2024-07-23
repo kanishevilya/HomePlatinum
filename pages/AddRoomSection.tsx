@@ -46,7 +46,7 @@ export default function AddRoomSection({ navigation }: any) {
     navigation.navigate("Home", { id: sectionId });
   };
 
-  const handleRoomSelect = (roomId: string | number[]) => {
+  const toggleRoomSelect = (roomId: string | number[]) => {
     setSelectedRooms((prevSelected) =>
       prevSelected.includes(roomId)
         ? prevSelected.filter((id) => id !== roomId)
@@ -64,7 +64,7 @@ export default function AddRoomSection({ navigation }: any) {
             : "#f9f9f9",
         },
       ]}
-      onPress={() => handleRoomSelect(item.id)}
+      onPress={() => toggleRoomSelect(item.id)}
     >
       <Text style={styles.roomText}>{item.name}</Text>
     </Pressable>

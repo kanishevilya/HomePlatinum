@@ -21,8 +21,6 @@ import RoomCard from "../components/RoomCard";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const bedroomImage = require("../assets/images/Bedroom.png");
-
 const { width } = Dimensions.get("window");
 
 const getFormattedDate = () => {
@@ -313,7 +311,8 @@ export default function Home({ navigation, route }: any) {
               <RoomCard
                 currentRoomsArray={currentRoomsArray}
                 item={item}
-                image={item.item.image.trim() ? item.item.image : bedroomImage}
+                image={item.item.image}
+                navigation={navigation}
               />
             )}
           />

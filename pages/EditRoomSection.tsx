@@ -42,7 +42,7 @@ export default function EditSection({ navigation }: any) {
     }
   };
 
-  const toggleRoomSelection = (roomId: string | number[]) => {
+  const toggleRoomSelect = (roomId: string | number[]) => {
     setSelectedRooms((prevSelected) =>
       prevSelected.includes(roomId)
         ? prevSelected.filter((id) => id !== roomId)
@@ -68,7 +68,7 @@ export default function EditSection({ navigation }: any) {
         styles.roomItem,
         selectedRooms.includes(item.id) && styles.selectedRoom,
       ]}
-      onPress={() => toggleRoomSelection(item.id)}
+      onPress={() => toggleRoomSelect(item.id)}
     >
       <Text style={styles.roomName}>{item.name}</Text>
     </Pressable>

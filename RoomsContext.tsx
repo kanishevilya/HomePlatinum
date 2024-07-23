@@ -62,9 +62,19 @@ type RoomsContextType = {
   getSections: () => Section[];
   getRooms: () => Room[];
   removeSection: (id: string | number[]) => void;
-  removeRoomFromSection: (roomId: string | number[], sectionId: string | number[]) => void;
+  removeRoomFromSection: (
+    roomId: string | number[],
+    sectionId: string | number[]
+  ) => void;
   getUnassignedRooms: () => Room[];
-  updateSection: (sectionId: string | number [], updatedSection: Partial<Section>)=>void;
+  updateSection: (
+    sectionId: string | number[],
+    updatedSection: Partial<Section>
+  ) => void;
+  updateRoom: (
+    roomId: string | number[],
+    updatedRoom: Partial<Room>
+  ) =>void;
 };
 
 const RoomsContext = createContext<RoomsContextType>({} as RoomsContextType);
@@ -148,18 +158,28 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const removeRoomFromSection = (roomId: string | number[], sectionId: string | number[]) => {
+  const removeRoomFromSection = (
+    roomId: string | number[],
+    sectionId: string | number[]
+  ) => {
     setSections((prevSections) =>
-      prevSections.map((section) => ( section.id===sectionId ? {
-        ...section,
-        roomIds: section.roomIds.filter((id) => id !== roomId),
-      }:section))
+      prevSections.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              roomIds: section.roomIds.filter((id) => id !== roomId),
+            }
+          : section
+      )
     );
 
     setRooms((prevRooms) =>
       prevRooms.map((room) =>
         room.id === roomId
-          ? { ...room, sectionIds: room.sectionIds.filter((id) => id !== sectionId) }
+          ? {
+              ...room,
+              sectionIds: room.sectionIds.filter((id) => id !== sectionId),
+            }
           : room
       )
     );
@@ -212,10 +232,27 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
     return rooms.filter((room) => room.sectionIds.length == 0);
   };
 
-  const updateSection = (sectionId: string | number [], updatedSection: Partial<Section>) => {
+  // Partial такая штука, которая представляет собой 'разбитый' объект, то есть
+  // { ...section, ...updatedSection } говорит, что мы не трогаем элементы section
+  // кроме тех, которые находятся в updtSection
+  const updateSection = (
+    sectionId: string | number[],
+    updatedSection: Partial<Section>
+  ) => {
     setSections((prevSections) =>
       prevSections.map((section) =>
         section.id === sectionId ? { ...section, ...updatedSection } : section
+      )
+    );
+  };
+
+  const updateRoom = (
+    roomId: string | number[],
+    updatedRoom: Partial<Room>
+  ) => {
+    setRooms((prevRooms) =>
+      prevRooms.map((room) =>
+        room.id === roomId ? { ...room, ...updatedRoom } : room
       )
     );
   };
@@ -237,7 +274,8 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
         removeSection,
         removeRoomFromSection,
         getUnassignedRooms,
-        updateSection
+        updateSection,
+        updateRoom
       }}
     >
       {children}
