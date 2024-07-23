@@ -50,7 +50,7 @@ export default function Home({ navigation, route }: any) {
   const [currentRoomsArray, setCurrentRoomsArray] = useState<Room[]>([]);
   const [displayAddBlock, setDisplayAddBlock] = useState(false);
 
-  const [isIdFromParams, setIsIdFromParams]=useState(false);
+  const [isIdFromParams, setIsIdFromParams] = useState(false);
   const currentDay = getFormattedDate();
 
   function switchDisplayAddBlock() {
@@ -92,7 +92,7 @@ export default function Home({ navigation, route }: any) {
       fetchWeather();
       // alert(currentSectionId);
       console.log(sections);
-      if (sections.length && (!currentSectionId || route.params )) {
+      if (sections.length && (!currentSectionId || route.params)) {
         setCurrentSectionId(sections[0].id);
       }
     }, [])
@@ -118,7 +118,6 @@ export default function Home({ navigation, route }: any) {
 
   function RoomText({ item }: { item: { index: number; item: Section } }) {
     function onClick() {
-
       if (currentSectionId === item.item.id) {
         return;
       }
@@ -144,8 +143,8 @@ export default function Home({ navigation, route }: any) {
 
   const flatListRef = useRef<FlatList<any>>(null);
   const switchList = () => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToIndex({index: 0, animated: false})
+    if (flatListRef.current && currentRoomsArray.length) {
+      flatListRef.current.scrollToIndex({ index: 0, animated: false });
     }
   };
 
@@ -215,7 +214,9 @@ export default function Home({ navigation, route }: any) {
                 <Pressable
                   onPress={() => {
                     switchDisplayAddBlock();
-                    navigation.navigate("RemoveRoomSection", {"id": currentSectionId});
+                    navigation.navigate("RemoveRoomSection", {
+                      id: currentSectionId,
+                    });
                   }}
                 >
                   <View style={[styles.plusContainer]}>
@@ -260,7 +261,11 @@ export default function Home({ navigation, route }: any) {
               borderColor: "rgba(35, 40, 44, 0.2)",
             }}
             ref={firstList}
-            onContentSizeChange={() => firstList.current?.scrollToEnd({animated: true})}
+            onContentSizeChange={() => {
+              if (firstList.current && sections.length) {
+                firstList.current.scrollToEnd({ animated: true });
+              }
+            }}
             showsHorizontalScrollIndicator={false}
             horizontal={true}
             data={sections.length > 0 ? sections : []}

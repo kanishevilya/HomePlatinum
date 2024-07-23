@@ -121,6 +121,7 @@ export default function RemoveRoomSection({ navigation, route }: any) {
               backgroundColor: "#23282C",
             },
           ]}
+          onPress={()=>navigation.navigate("AddRoomSection")}
         >
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTextUnassigned}>Unassigned Rooms</Text>
@@ -128,6 +129,7 @@ export default function RemoveRoomSection({ navigation, route }: any) {
               {unassignedRooms} rooms
             </Text>
           </View>
+          <Icon name='expand' color="white" size={30} addStyle={{marginRight: 10}}/>
         </Pressable>
       </View>
     </View>
