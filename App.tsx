@@ -23,6 +23,7 @@ import AddRoom from "./pages/AddRoom";
 const RootStack = createNativeStackNavigator();
 import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
 import RemoveRoom from "./pages/RemoveRoom";
+import EditSection from "./pages/EditRoomSection";
 
 export default function App() {
   return (
@@ -57,6 +58,11 @@ export default function App() {
               <RootStack.Screen
                 name="AddRoomSection"
                 component={AddRoomSection}
+                options={({ navigation, route }) => ({ headerShown: false })}
+              />
+              <RootStack.Screen
+                name="EditRoomSection"
+                component={EditSection}
                 options={({ navigation, route }) => ({ headerShown: false })}
               />
               <RootStack.Screen

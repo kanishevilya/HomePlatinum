@@ -207,7 +207,7 @@ export default function Home({ navigation, route }: any) {
                     navigation.navigate("AddRoomSection");
                   }}
                 >
-                  <View style={[styles.plusContainer]}>
+                  <View style={[styles.actionContainer]}>
                     <Icon name="plus" color="white" size={32} />
                   </View>
                 </Pressable>
@@ -219,8 +219,20 @@ export default function Home({ navigation, route }: any) {
                     });
                   }}
                 >
-                  <View style={[styles.plusContainer]}>
+                  <View style={[styles.actionContainer]}>
                     <Icon name="minus" color="white" size={32} />
+                  </View>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    switchDisplayAddBlock();
+                    navigation.navigate("EditRoomSection", {
+                      id: currentSectionId,
+                    });
+                  }}
+                >
+                  <View style={[styles.actionContainer]}>
+                    <Icon name="gear" color="white" size={32} />
                   </View>
                 </Pressable>
               </View>
@@ -234,7 +246,7 @@ export default function Home({ navigation, route }: any) {
                     });
                   }}
                 >
-                  <View style={[styles.plusContainer]}>
+                  <View style={[styles.actionContainer]}>
                     <Icon name="plus" color="white" size={32} />
                   </View>
                 </Pressable>
@@ -246,7 +258,7 @@ export default function Home({ navigation, route }: any) {
                     });
                   }}
                 >
-                  <View style={[styles.plusContainer]}>
+                  <View style={[styles.actionContainer]}>
                     <Icon name="minus" color="white" size={32} />
                   </View>
                 </Pressable>
@@ -330,7 +342,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     paddingBottom: 5,
   },
-  plusContainer: {
+  actionContainer: {
     marginTop: 10,
     backgroundColor: "#758794",
     padding: 10,
@@ -374,14 +386,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   addGenView: {
-    height: 200,
+    height: 250,
     // flex: 1,
     // backgroundColor: "blue",
     alignItems: "center",
     justifyContent: "center",
   },
   addRoomView: {
-    height: 200,
+    height: 150,
     // flex: 1,
     alignItems: "center",
     justifyContent: "center",

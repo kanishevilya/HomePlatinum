@@ -64,6 +64,7 @@ type RoomsContextType = {
   removeSection: (id: string | number[]) => void;
   removeRoomFromSection: (roomId: string | number[], sectionId: string | number[]) => void;
   getUnassignedRooms: () => Room[];
+  updateSection: (sectionId: string | number [], updatedSection: Partial<Section>)=>void;
 };
 
 const RoomsContext = createContext<RoomsContextType>({} as RoomsContextType);
@@ -211,6 +212,14 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
     return rooms.filter((room) => room.sectionIds.length == 0);
   };
 
+  const updateSection = (sectionId: string | number [], updatedSection: Partial<Section>) => {
+    setSections((prevSections) =>
+      prevSections.map((section) =>
+        section.id === sectionId ? { ...section, ...updatedSection } : section
+      )
+    );
+  };
+
   const getSections = () => sections;
   const getRooms = () => rooms;
 
@@ -228,6 +237,7 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
         removeSection,
         removeRoomFromSection,
         getUnassignedRooms,
+        updateSection
       }}
     >
       {children}
