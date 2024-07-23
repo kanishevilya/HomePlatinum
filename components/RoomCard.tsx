@@ -22,13 +22,13 @@ import { Room } from "../RoomsContext";
 function RoomCardWithoutAnimation({
   item,
   currentRoomsArray,
-  bedroomImage,
+  image,
   panResponder,
   styleAdditional,
 }: {
   item: { index: number; item: Room };
   currentRoomsArray: Room[] | null;
-  bedroomImage: any;
+  image: any;
   panResponder: any;
   styleAdditional: any | null;
 }) {
@@ -54,7 +54,7 @@ function RoomCardWithoutAnimation({
         <ImageBackground
           style={styles.roomImage}
           imageStyle={{ borderRadius: 16 }}
-          source={bedroomImage}
+          source={image}
         >
           <LinearGradient
             style={styles.imageShadow}
@@ -73,11 +73,11 @@ function RoomCardWithoutAnimation({
 export default function RoomCard({
   item,
   currentRoomsArray,
-  bedroomImage,
+  image,
 }: {
   item: { index: number; item: Room };
   currentRoomsArray: Room[] | null;
-  bedroomImage: any;
+  image: any;
 }) {
   const pan = useRef(new Animated.ValueXY()).current;
   const maxOffset = 80;
@@ -148,7 +148,7 @@ export default function RoomCard({
         <RoomCardWithoutAnimation
           item={item}
           currentRoomsArray={currentRoomsArray}
-          bedroomImage={bedroomImage}
+          image={image}
           panResponder={panResponder}
           styleAdditional={styleAdditional}
         />

@@ -226,12 +226,30 @@ export default function Home({ navigation, route }: any) {
               </View>
               <View style={styles.addRoomView}>
                 <Text style={styles.hiddenPanelText}>Rooms</Text>
-                <View style={[styles.plusContainer]}>
-                  <Icon name="plus" color="white" size={32} />
-                </View>
-                <View style={[styles.plusContainer]}>
-                  <Icon name="minus" color="white" size={32} />
-                </View>
+                <Pressable
+                  onPress={() => {
+                    switchDisplayAddBlock();
+                    navigation.navigate("AddRoom", {
+                      id: currentSectionId,
+                    });
+                  }}
+                >
+                  <View style={[styles.plusContainer]}>
+                    <Icon name="plus" color="white" size={32} />
+                  </View>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    switchDisplayAddBlock();
+                    navigation.navigate("RemoveRoom", {
+                      id: currentSectionId,
+                    });
+                  }}
+                >
+                  <View style={[styles.plusContainer]}>
+                    <Icon name="minus" color="white" size={32} />
+                  </View>
+                </Pressable>
               </View>
             </View>
           )}
@@ -283,7 +301,7 @@ export default function Home({ navigation, route }: any) {
               <RoomCard
                 currentRoomsArray={currentRoomsArray}
                 item={item}
-                bedroomImage={bedroomImage}
+                image={item.item.image.trim() ? item.item.image : bedroomImage}
               />
             )}
           />
@@ -417,6 +435,7 @@ const styles = StyleSheet.create({
   },
   mainView: {
     // margin: 32,
+    flex: 1,
     paddingLeft: 15,
     marginTop: 12,
     zIndex: 0,

@@ -8,23 +8,31 @@ import {
   FlatList,
 } from "react-native";
 import Icon from "../components/Icon";
-import { Section, useRooms } from "../RoomsContext";
+import { Room, Section, useRooms } from "../RoomsContext";
 
 export default function RemoveRoomSection({ navigation, route }: any) {
-  const {id}=route.params || null;
-//   alert(id);
-  const { sections, removeSection, getUnassignedRooms } = useRooms();
+  const { id } = route.params || null;
+  //   alert(id);
+  const {
+    rooms,
+    sections,
+    removeSection,
+    getUnassignedRooms,
+    removeRoomFromSection,
+  } = useRooms();
   const [unassignedRooms, setUnassignedRooms] = useState(0);
   const [selectedSection, setSelectedSection] = useState<
     string | number[] | null
   >(id);
-  const [removeSwitcher, setRemoveSwitcher]=useState(false); // для useEffect
+  const [removeSwitcher, setRemoveSwitcher] = useState(false); // для useEffect
 
-  const [canBeRemove, setCanBeRemove]=useState(false);
+  const [canBeRemove, setCanBeRemove] = useState(false);
 
-  useEffect(()=>{
+  const [selectedRooms, setSelectedRooms] = useState<(string | number[])[]>([]);
+
+  useEffect(() => {
     setUnassignedRooms(getUnassignedRooms().length);
-  },[removeSwitcher]);
+  }, [removeSwitcher]);
 
   const handleRemovePress = (sectionId: string | number[]) => {
     // Найти секцию
@@ -36,8 +44,8 @@ export default function RemoveRoomSection({ navigation, route }: any) {
     if (section.roomIds.length > 0 && !canBeRemove) {
       setCanBeRemove(true);
       Alert.alert(
-        "This section contains rooms.",
-        "Click again if you want to move the rooms to 'Unassigned' and delete the section.",
+        "Sections contain rooms.",
+        "Click again if you want to move the rooms to 'Unassigned' and delete sections.",
         [{ text: "OK" }]
       );
       return;
@@ -49,8 +57,39 @@ export default function RemoveRoomSection({ navigation, route }: any) {
     setRemoveSwitcher(!removeSwitcher);
   };
 
-  const renderSection = (listItem: { index: number; item: Section }) => {
+  const handleRoomSelect = (roomId: string | number[]) => {
+    setSelectedRooms((prevSelected) =>
+      prevSelected.includes(roomId)
+        ? prevSelected.filter((id) => id !== roomId)
+        : [...prevSelected, roomId]
+    );
+  };
 
+  const handleMoveToUnassigned = () => {
+    selectedRooms.forEach((roomId) => {
+      removeRoomFromSection(roomId, selectedSection ?? "");
+    });
+    setSelectedRooms([]);
+    setRemoveSwitcher(!removeSwitcher);
+  };
+
+  const renderRoom = ({ item }: { item: Room }) => (
+    <Pressable
+      style={[
+        styles.roomItem,
+        {
+          backgroundColor: selectedRooms.includes(item.id)
+            ? "#e0e0e0"
+            : "#f9f9f9",
+        },
+      ]}
+      onPress={() => handleRoomSelect(item.id)}
+    >
+      <Text style={styles.roomText}>{item.name}</Text>
+    </Pressable>
+  );
+
+  const renderSection = (listItem: { index: number; item: Section }) => {
     const item = listItem.item;
     return (
       <View
@@ -68,7 +107,14 @@ export default function RemoveRoomSection({ navigation, route }: any) {
                 selectedSection === item.id ? "#e0e0e0" : "#f9f9f9",
             },
           ]}
-          onPress={() => setSelectedSection(item.id)}
+          onPress={() => {
+            if (selectedSection == item.id) {
+              setSelectedSection(null);
+            } else {
+              setSelectedSection(item.id);
+            }
+            setSelectedRooms([]);
+          }}
         >
           {item.roomIds.length > 0 && selectedSection === item.id && (
             <Icon
@@ -91,6 +137,14 @@ export default function RemoveRoomSection({ navigation, route }: any) {
             </Pressable>
           )}
         </Pressable>
+        {item.roomIds.length > 0 && selectedSection === item.id && (
+          <FlatList
+            data={rooms.filter((room) => room.sectionIds.includes(item.id))}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={renderRoom}
+            style={{ paddingHorizontal: 40 }}
+          />
+        )}
       </View>
     );
   };
@@ -112,6 +166,11 @@ export default function RemoveRoomSection({ navigation, route }: any) {
           renderItem={(item) => renderSection(item)}
           style={styles.list}
         />
+        {selectedRooms.length > 0 && (
+          <Pressable style={styles.moveButton} onPress={handleMoveToUnassigned}>
+            <Text style={styles.moveButtonText}>Move to Unassigned</Text>
+          </Pressable>
+        )}
       </View>
       <View style={styles.sectionContainerUnassigned}>
         <Pressable
@@ -121,7 +180,7 @@ export default function RemoveRoomSection({ navigation, route }: any) {
               backgroundColor: "#23282C",
             },
           ]}
-          onPress={()=>navigation.navigate("AddRoomSection")}
+          onPress={() => navigation.navigate("AddRoomSection")}
         >
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTextUnassigned}>Unassigned Rooms</Text>
@@ -129,7 +188,12 @@ export default function RemoveRoomSection({ navigation, route }: any) {
               {unassignedRooms} rooms
             </Text>
           </View>
-          <Icon name='expand' color="white" size={30} addStyle={{marginRight: 10}}/>
+          <Icon
+            name="expand"
+            color="white"
+            size={30}
+            addStyle={{ marginRight: 10 }}
+          />
         </Pressable>
       </View>
     </View>
@@ -141,6 +205,30 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     padding: 20,
+  },
+  moveButton: {
+    backgroundColor: "#ff4d4d",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginTop: 30,
+    marginBottom: -10,
+    alignItems: "center",
+  },
+  moveButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  roomItem: {
+    padding: 15,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  roomText: {
+    fontSize: 18,
+    color: "#23282C",
   },
   goBackContainer: {
     flexDirection: "row",

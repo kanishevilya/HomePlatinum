@@ -1,5 +1,12 @@
-import React from "react";
-import { Pressable, StatusBar, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Image,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { UsersProvider } from "./UsersContext";
 
@@ -12,10 +19,12 @@ import ColorPalette from "./pages/ColorPalette";
 import AddRoomSection from "./pages/AddRoomSection";
 import { RoomsProvider } from "./RoomsContext";
 import RemoveRoomSection from "./pages/RemoveRoomSection";
+import AddRoom from "./pages/AddRoom";
 const RootStack = createNativeStackNavigator();
+import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
+import RemoveRoom from "./pages/RemoveRoom";
 
 export default function App() {
-  
   return (
     <UsersProvider>
       <RoomsProvider>
@@ -48,6 +57,16 @@ export default function App() {
               <RootStack.Screen
                 name="AddRoomSection"
                 component={AddRoomSection}
+                options={({ navigation, route }) => ({ headerShown: false })}
+              />
+              <RootStack.Screen
+                name="AddRoom"
+                component={AddRoom}
+                options={({ navigation, route }) => ({ headerShown: false })}
+              />
+              <RootStack.Screen
+                name="RemoveRoom"
+                component={RemoveRoom}
                 options={({ navigation, route }) => ({ headerShown: false })}
               />
               <RootStack.Screen

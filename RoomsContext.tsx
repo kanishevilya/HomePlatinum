@@ -53,10 +53,16 @@ type RoomsContextType = {
   sections: Section[];
   rooms: Room[];
   addSection: (name: string) => string | number[] | null;
-  addRoomToSection: (sectionId: string | number[], roomId: string | number[]) => void;
+  addRoomToSection: (
+    sectionId: string | number[],
+    roomId: string | number[]
+  ) => void;
+  addRoom: (room: Room) => void;
+  removeRoom: (id: string | number[]) => void;
   getSections: () => Section[];
   getRooms: () => Room[];
-  removeSection: (id: string | number[] ) => void;
+  removeSection: (id: string | number[]) => void;
+  removeRoomFromSection: (roomId: string | number[], sectionId: string | number[]) => void;
   getUnassignedRooms: () => Room[];
 };
 
@@ -129,19 +135,39 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
   };
 
   const removeSection = (id: string | number[]) => {
-    setSections((prevSections) => 
+    setSections((prevSections) =>
       prevSections.filter((section) => section.id !== id)
     );
-  
+
     setRooms((prevRooms) =>
       prevRooms.map((room) => ({
         ...room,
-        sectionIds: room.sectionIds.filter((sectionId) => sectionId !== id)
+        sectionIds: room.sectionIds.filter((sectionId) => sectionId !== id),
       }))
     );
   };
 
-  const addRoomToSection = (sectionId: string | number[], roomId: string | number[]) => {
+  const removeRoomFromSection = (roomId: string | number[], sectionId: string | number[]) => {
+    setSections((prevSections) =>
+      prevSections.map((section) => ( section.id===sectionId ? {
+        ...section,
+        roomIds: section.roomIds.filter((id) => id !== roomId),
+      }:section))
+    );
+
+    setRooms((prevRooms) =>
+      prevRooms.map((room) =>
+        room.id === roomId
+          ? { ...room, sectionIds: room.sectionIds.filter((id) => id !== sectionId) }
+          : room
+      )
+    );
+  };
+
+  const addRoomToSection = (
+    sectionId: string | number[],
+    roomId: string | number[]
+  ) => {
     setSections((prevSections) =>
       prevSections.map((section) =>
         section.id === sectionId
@@ -158,10 +184,32 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
       )
     );
   };
+  const addRoom = (room: Room) => {
+    setRooms((prevRooms) => [...prevRooms, room]);
 
-  const getUnassignedRooms = ()=>{
-    return rooms.filter((room)=>room.sectionIds.length==0);
-  }
+    setSections((prevSections) =>
+      prevSections.map((section) =>
+        room.sectionIds.includes(section.id)
+          ? { ...section, roomIds: [...section.roomIds, room.id] }
+          : section
+      )
+    );
+  };
+
+  const removeRoom = (roomId: string | number[]) => {
+    setRooms((prevRooms) => prevRooms.filter((room) => room.id !== roomId));
+
+    setSections((prevSections) =>
+      prevSections.map((section) => ({
+        ...section,
+        roomIds: section.roomIds.filter((id) => id !== roomId),
+      }))
+    );
+  };
+
+  const getUnassignedRooms = () => {
+    return rooms.filter((room) => room.sectionIds.length == 0);
+  };
 
   const getSections = () => sections;
   const getRooms = () => rooms;
@@ -173,9 +221,12 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
         rooms,
         addSection,
         addRoomToSection,
+        addRoom,
+        removeRoom,
         getSections,
         getRooms,
         removeSection,
+        removeRoomFromSection,
         getUnassignedRooms,
       }}
     >

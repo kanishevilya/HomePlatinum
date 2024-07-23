@@ -11,7 +11,7 @@ import {
 import Icon from "../components/Icon";
 import { Room, useRooms } from "../RoomsContext";
 
-export default function AddRoom({ navigation }: any) {
+export default function AddRoomSection({ navigation }: any) {
   const [nameOfSection, setNameOfSection] = useState("");
   const [selectedRooms, setSelectedRooms] = useState<(string | number[])[]>([]);
   const { rooms, addSection, getUnassignedRooms, addRoomToSection } =
@@ -104,7 +104,7 @@ export default function AddRoom({ navigation }: any) {
               {unassignedRooms.length} rooms
             </Text>
           </View>
-          <Icon name={displayList ? 'angle-down' : 'angle-up'}  color="white" size={40} addStyle={{marginRight: 10}}/>
+          <Icon name={displayList && unassignedRooms.length!=0 ? 'angle-down' : 'angle-up'}  color="white" size={40} addStyle={{marginRight: 10, marginBottom: 0}}/>
         </Pressable>
       </View>
       {/* <Text style={styles.subTitle}>Select Unassigned Rooms</Text> */}
