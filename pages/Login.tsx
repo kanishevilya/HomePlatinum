@@ -53,12 +53,10 @@ export default function Login({ navigation }: any) {
         setLogin("");
         setPassword("");
         navigation.navigate("Home");
-        alert("Добро пожаловать!");
-      } else {
-        alert("Неверный логин или пароль");
+        alert("Welcome!");
       }
     } else {
-      alert("Вы должны заполнить все поля!");
+      alert("You must fill out all fields!");
     }
   }
 

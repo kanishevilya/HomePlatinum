@@ -10,7 +10,6 @@ import uuid from "react-native-uuid";
 import { Device } from "./DevicesContext";
 import { Room, Section } from "./RoomsContext";
 
-
 export type User = {
   id: string | number[];
   login: string;
@@ -43,20 +42,35 @@ const UserMock: User = {
   password: "123456789",
 };
 
+const PATH = "http://192.168.1.100:8090/itstep/user/";
+
 export function UsersProvider({ children }: { children: ReactNode }) {
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState("");
 
   useEffect(() => {
     const loadUsers = async () => {
-      let savedUsers = (await AsyncStorage.getItem("users")) as string;
-      if (savedUsers) {
-        let parsedUsers = JSON.parse(savedUsers);
-        if (parsedUsers.length) {
-          setUsers(parsedUsers);
-        } else {
-          setUsers([UserMock]);
+      try {
+        // const response = await fetch(PATH + "getUsers");
+        // let savedUsers;
+        // console.log(response);
+        // if (!response.ok) {
+        //   console.log(`Error: ${response.statusText}`);
+        //   savedUsers = (await AsyncStorage.getItem("users")) as string;
+        // }
+        // let savedUsers = await response.json();
+        let savedUsers = (await AsyncStorage.getItem("users")) as string;
+        console.log(savedUsers);
+        if (savedUsers) {
+          let parsedUsers = JSON.parse(savedUsers);
+          if (parsedUsers.length) {
+            setUsers(parsedUsers);
+          } else {
+            setUsers([UserMock]);
+          }
         }
+      } catch (e) {
+        console.log(e);
       }
     };
     const loadCurUser = async () => {
@@ -84,19 +98,18 @@ export function UsersProvider({ children }: { children: ReactNode }) {
   }, [currentUser]);
 
   const checkLogin = (login: string, password: string) => {
-    const user = users.find(
-      (user) => user.login.trim().toLowerCase() === login.toLowerCase()
-    );
-    if (user) {
-      if (user.password === password) {
-        return true;
-      } else {
-        alert("Incorrect password");
-        return false;
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].login.trim().toLowerCase() === login.trim().toLowerCase()) {
+        if (users[i].password === password) {
+          return true;
+        } else {
+          alert("This login is already taken!");
+          return false;
+        }
       }
     }
-    alert("Login not found");
-    return false;
+    
+    return true;
   };
   const setUser = (login: string) => {
     setCurrentUser(login);

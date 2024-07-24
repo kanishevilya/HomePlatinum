@@ -114,7 +114,7 @@ export default function Home({ navigation, route }: any) {
         setCurrentRoomsArray([]);
       }
     }
-  }, [currentSectionId, sections, rooms]);
+  }, [currentSectionId]);
 
   function RoomText({ item }: { item: { index: number; item: Section } }) {
     function onClick() {

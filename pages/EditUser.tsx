@@ -80,8 +80,13 @@ export default function EditUser({ navigation }: any) {
     alert("Success!");
     // navigation.goBack();
   };
-  const handleExit=async ()=>{
+  const handleExit = async () => {
     await AsyncStorage.setItem("currentUser", "");
+    navigation.navigate("Login");
+  };
+
+  const clearData=async ()=>{
+    await AsyncStorage.clear();
     navigation.navigate("Login");
   }
 
@@ -106,9 +111,7 @@ export default function EditUser({ navigation }: any) {
         />
         <Text style={styles.label}>Phone</Text>
         <TextInput style={styles.input} value={phone} onChangeText={setPhone} />
-        <Text style={styles.label}>
-          Password
-        </Text>
+        <Text style={styles.label}>Password</Text>
         <TextInput
           style={styles.input}
           value={password}
@@ -126,11 +129,16 @@ export default function EditUser({ navigation }: any) {
           placeholderTextColor="gray"
           secureTextEntry
         />
-        <Pressable style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </Pressable>
-        <Pressable style={[styles.saveButton, {marginTop: 15}]} onPress={handleExit}>
-          <Text style={styles.saveButtonText}>Exit</Text>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <Pressable style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Save</Text>
+          </Pressable>
+          <Pressable style={[styles.saveButton]} onPress={handleExit}>
+            <Text style={styles.saveButtonText}>Exit</Text>
+          </Pressable>
+        </View>
+        <Pressable style={[styles.saveButton, {width: "auto", marginTop: 15}]} onPress={clearData}>
+          <Text style={styles.saveButtonText}>Clear App Data (Application restart required)</Text>
         </Pressable>
       </View>
       <NavPanel navigation={navigation} currentItem="EditUser" />
@@ -182,6 +190,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   saveButton: {
+    width: 150,
     backgroundColor: "#23282C",
     paddingVertical: 12,
     borderRadius: 5,
