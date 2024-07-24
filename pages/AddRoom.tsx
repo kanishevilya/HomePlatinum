@@ -7,19 +7,27 @@ import {
   Text,
   Alert,
   FlatList,
+  Image,
+  Platform
 } from "react-native";
 import Icon from "../components/Icon";
 import { useRooms, Section } from "../RoomsContext";
+import * as ImagePicker from "expo-image-picker";
 import uuid from "react-native-uuid";
+
 
 export default function AddRoom({ navigation }: any) {
   const [nameOfRoom, setNameOfRoom] = useState("");
   const [image, setImage] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+
   const [selectedSections, setSelectedSections] = useState<
     (string | number[])[]
   >([]);
   const { sections, addRoom, rooms } = useRooms();
 
+
+  
   const handleAddPress = async () => {
     const trimmedName = nameOfRoom.trim();
     const trimmedImage = image.trim();
@@ -87,6 +95,33 @@ export default function AddRoom({ navigation }: any) {
     </Pressable>
   );
 
+  
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      base64: true,
+      allowsEditing: true,
+      //   aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      // setImage("data:image/jpeg;base64," + result.assets[0].base64);
+      setImage(result.assets[0].uri);
+      // if (Platform.OS == "web") {
+      //   alert(result.assets[0].uri);
+      // } else {
+      //   alert(
+      //     "data:image/jpeg;base64," + result.assets[0].base64?.substring(0, 40)
+      //   );
+      // }
+    }
+  };
+  const saveImage = () => {
+    setImage(imageUrl);
+  };
+
+
   return (
     <View style={styles.container}>
       <Pressable
@@ -104,13 +139,30 @@ export default function AddRoom({ navigation }: any) {
         placeholder="Enter Room Name"
         placeholderTextColor="gray"
       />
-      <TextInput
-        style={styles.input}
-        value={image}
-        onChangeText={setImage}
-        placeholder="Enter Image URL"
-        placeholderTextColor="gray"
-      />
+      <Pressable style={styles.imagePickerButton} onPress={pickImage}>
+        <Text style={styles.imagePickerButtonText}>
+          Pick an image from the gallery
+        </Text>
+      </Pressable>
+      <Text style={styles.subTitle}>Or</Text>
+      <View style={{ flexDirection: "row", gap: 15 }}>
+        <TextInput
+          style={styles.input}
+          value={imageUrl}
+          onChangeText={setImageUrl}
+          placeholder="Enter Image URL"
+          placeholderTextColor="gray"
+        />
+        <Pressable style={[styles.imagePickerButton, {paddingHorizontal: 15}]} onPress={saveImage}>
+          <Text style={styles.imagePickerButtonText}>Save</Text>
+        </Pressable>
+      </View>
+      {image != null && (
+        <View style={{ alignItems: "center" }}>
+          <Image source={{ uri: image }} style={styles.image} />
+        </View>
+      )}
+
       <Text style={styles.subTitle}>Select Sections:</Text>
       <FlatList
         data={sections}
@@ -130,6 +182,25 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     padding: 20,
+  },
+  imagePickerButton: {
+    height: 50,
+    backgroundColor: "#23282C",
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+  imagePickerButtonText: {
+    fontSize: 18,
+    fontWeight: "500",
+    color: "white",
+  },
+  image: {
+    width: 208,
+    height: 235,
+    borderRadius: 5,
+    marginBottom: 20,
   },
   goBackContainer: {
     flexDirection: "row",
@@ -190,6 +261,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#23282C",
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 20
   },
   btnText: {
     fontSize: 18,

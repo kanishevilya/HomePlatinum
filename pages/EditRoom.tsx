@@ -22,6 +22,7 @@ export default function EditRoom({ navigation, route }: any) {
   const [room, setRoom] = useState<Room | null>(null);
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [selectedSections, setSelectedSections] = useState<
     (string | number[])[]
   >([]);
@@ -37,16 +38,16 @@ export default function EditRoom({ navigation, route }: any) {
     }
   }, [roomId, rooms]);
 
-//   async function getBase64FromUri(uri: string) {
-//     try {
-//       const filePath = uri.replace("file://", "");
-//       const base64 = await RNFS.readFile(filePath, "base64");
-//       return `data:image/jpeg;base64,${base64}`;
-//     } catch (error) {
-//       console.error(error);
-//       return null;
-//     }
-//   }
+  //   async function getBase64FromUri(uri: string) {
+  //     try {
+  //       const filePath = uri.replace("file://", "");
+  //       const base64 = await RNFS.readFile(filePath, "base64");
+  //       return `data:image/jpeg;base64,${base64}`;
+  //     } catch (error) {
+  //       console.error(error);
+  //       return null;
+  //     }
+  //   }
 
   const handleSave = () => {
     if (!room) return;
@@ -75,15 +76,20 @@ export default function EditRoom({ navigation, route }: any) {
     });
 
     if (!result.canceled) {
-      setImage('data:image/jpeg;base64,' + result.assets[0].base64);
-      if (Platform.OS == "web") {
-        alert(result.assets[0].uri);
-      } else {
-        alert('data:image/jpeg;base64,' + result.assets[0].base64?.substring(0, 40));
-      }
+      // setImage("data:image/jpeg;base64," + result.assets[0].base64);
+      setImage(result.assets[0].uri);
+      // if (Platform.OS == "web") {
+      //   alert(result.assets[0].uri);
+      // } else {
+      //   alert(
+      //     "data:image/jpeg;base64," + result.assets[0].base64?.substring(0, 40)
+      //   );
+      // }
     }
   };
-
+  const saveImage = () => {
+    setImage(imageUrl);
+  };
   const toggleSection = (sectionId: string | number[]) => {
     setSelectedSections((prevSelectedSections) => {
       if (prevSelectedSections.includes(sectionId)) {
@@ -120,10 +126,30 @@ export default function EditRoom({ navigation, route }: any) {
       />
       <Pressable style={styles.imagePickerButton} onPress={pickImage}>
         <Text style={styles.imagePickerButtonText}>
-          Pick an image from camera roll
+          Pick an image from the gallery
         </Text>
       </Pressable>
-      {image != null && <Image source={{ uri: image }} style={styles.image} />}
+      <Text style={styles.subTitle}>Or</Text>
+      <View style={{ flexDirection: "row", gap: 15 }}>
+        <TextInput
+          style={styles.input}
+          value={imageUrl}
+          onChangeText={setImageUrl}
+          placeholder="Enter Image URL"
+          placeholderTextColor="gray"
+        />
+        <Pressable
+          style={[styles.imagePickerButton, { paddingHorizontal: 15 }]}
+          onPress={saveImage}
+        >
+          <Text style={styles.imagePickerButtonText}>Save</Text>
+        </Pressable>
+      </View>
+      {image != null && (
+        <View style={{ alignItems: "center" }}>
+          <Image source={{ uri: image }} style={styles.image} />
+        </View>
+      )}
       <Text style={styles.subTitle}>Assign Sections:</Text>
       <View style={styles.list}>
         {sections.map((section) => (
@@ -208,8 +234,8 @@ const styles = StyleSheet.create({
     color: "white",
   },
   image: {
-    width: "100%",
-    height: 200,
+    width: 208,
+    height: 235,
     borderRadius: 5,
     marginBottom: 20,
   },

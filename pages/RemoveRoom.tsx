@@ -6,16 +6,23 @@ import {
   Pressable,
   Alert,
   FlatList,
+  TextInput,
 } from "react-native";
 import Icon from "../components/Icon";
-import { Room, useRooms } from "../RoomsContext";
+import { Room, Section, useRooms } from "../RoomsContext";
 
 export default function RemoveRoom({ navigation }: any) {
-  const { rooms, removeRoom } = useRooms();
+  const { rooms, removeRoom, sections } = useRooms();
   const [selectedRoom, setSelectedRoom] = useState<string | number[] | null>(
     null
   );
   const [removeSwitcher, setRemoveSwitcher] = useState(false); // для useEffect
+
+  const [selectedSection, setSelectedSection] = useState<
+    string | number[] | null
+  >(null);
+
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const handleRemovePress = (roomId: string | number[]) => {
     const room = rooms.find((r) => r.id === roomId);
@@ -31,9 +38,8 @@ export default function RemoveRoom({ navigation }: any) {
       return;
     }
 
-    // Удаление комнаты
     removeRoom(roomId);
-    setSelectedRoom(null); // Снять выделение комнаты
+    setSelectedRoom(null);
     setRemoveSwitcher(!removeSwitcher);
   };
 
@@ -83,6 +89,33 @@ export default function RemoveRoom({ navigation }: any) {
     );
   };
 
+  const renderSection = (section: Section) => {
+    return (
+      <Pressable
+        style={[
+          styles.sectionItem,
+          {
+            backgroundColor:
+              selectedSection === section.id ? "#e0e0e0" : "#f9f9f9",
+          },
+        ]}
+        onPress={() => {
+          if (selectedSection === section.id) {
+            setSelectedSection(null);
+          } else {
+            setSelectedSection(section.id);
+          }
+        }}
+      >
+        <Text style={styles.sectionText}>{section.name}</Text>
+      </Pressable>
+    );
+  };
+
+  let filteredRooms = selectedSection
+    ? rooms.filter((room) => room.sectionIds.includes(selectedSection))
+    : rooms;
+  filteredRooms= searchQuery.trim() ? rooms.filter((room) => room.name.toLowerCase().includes(searchQuery.trim().toLowerCase())): filteredRooms;
   return (
     <View style={styles.container}>
       <Pressable
@@ -93,9 +126,24 @@ export default function RemoveRoom({ navigation }: any) {
         <Text style={styles.goBackText}>Go Back</Text>
       </Pressable>
       <Text style={styles.title}>Remove Rooms</Text>
+      <View style={styles.sectionsContainer}>
+        <FlatList
+          horizontal
+          data={sections}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => renderSection(item)}
+          style={styles.sectionsList}
+        />
+      </View>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search by room name"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
       <View>
         <FlatList
-          data={rooms}
+          data={filteredRooms}
           keyExtractor={(item) => item.id.toString()}
           renderItem={(item) => renderRoom(item)}
           style={styles.list}
@@ -110,6 +158,31 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     padding: 20,
+  },
+  searchInput: {
+    height: 40,
+    borderColor: "#ddd",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+  },
+  sectionsContainer: {
+    marginBottom: 20,
+  },
+  sectionsList: {
+    marginBottom: 10,
+  },
+  sectionItem: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  sectionText: {
+    fontSize: 16,
+    color: "#23282C",
   },
   goBackContainer: {
     flexDirection: "row",

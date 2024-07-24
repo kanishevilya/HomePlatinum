@@ -35,12 +35,10 @@ export default function RemoveRoomSection({ navigation, route }: any) {
   }, [removeSwitcher]);
 
   const handleRemovePress = (sectionId: string | number[]) => {
-    // Найти секцию
     const section = sections.find((sec) => sec.id === sectionId);
 
     if (!section) return;
 
-    // Проверить наличие комнат в секции
     if (section.roomIds.length > 0 && !canBeRemove) {
       setCanBeRemove(true);
       Alert.alert(
@@ -51,9 +49,8 @@ export default function RemoveRoomSection({ navigation, route }: any) {
       return;
     }
 
-    // Удаление секции
     removeSection(sectionId);
-    setSelectedSection(null); // Снять выделение секции
+    setSelectedSection(null);
     setRemoveSwitcher(!removeSwitcher);
   };
 
