@@ -29,12 +29,14 @@ function RoomCardWithoutAnimation({
   image,
   panResponder,
   styleAdditional,
+  navigation,
 }: {
   item: { index: number; item: Room };
   currentRoomsArray: Room[] | null;
   image: any;
   panResponder: any;
   styleAdditional: any | null;
+  navigation: any;
 }) {
   // let s: any[] = [styles.roomCard];
   // if (styleAdditional) {
@@ -47,7 +49,7 @@ function RoomCardWithoutAnimation({
   // }
 
   return (
-    <Pressable onPress={() => alert(item.item.id)}>
+    <Pressable onPress={() => navigation.navigate("RoomDevices", {"roomId": item.item.id})}>
       <LinearGradient
         style={styles.roomCard}
         start={[0, 0]}
@@ -164,6 +166,7 @@ export default function RoomCard({
           image={image}
           panResponder={panResponder}
           styleAdditional={styleAdditional}
+          navigation={navigation}
         />
       </Animated.View>
       {/* <View style={styles.gestureZone} {...panResponder.panHandlers} /> */}

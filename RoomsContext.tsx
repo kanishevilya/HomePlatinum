@@ -13,7 +13,7 @@ export type Room = {
   sectionIds: (string | number[])[];
   name: string;
   image: string;
-  devices: Device[];
+  devices: (string | number[])[];
 };
 
 export type Section = {
@@ -71,10 +71,12 @@ type RoomsContextType = {
     sectionId: string | number[],
     updatedSection: Partial<Section>
   ) => void;
-  updateRoom: (
+  updateRoom: (roomId: string | number[], updatedRoom: Partial<Room>) => void;
+  addDeviceToRoom: (
     roomId: string | number[],
-    updatedRoom: Partial<Room>
-  ) =>void;
+    deviceId: string | number[]
+  ) => void;
+  getDevicesInRoom: (roomId: string | number[]) => (string | number[])[];
 };
 
 const RoomsContext = createContext<RoomsContextType>({} as RoomsContextType);
@@ -260,9 +262,29 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
   const getSections = () => sections;
   const getRooms = () => rooms;
 
+  const addDeviceToRoom = (
+    roomId: string | number[],
+    deviceId: string | number[]
+  ) => {
+    setRooms((prevRooms) =>
+      prevRooms.map((room) =>
+        room.id === roomId
+          ? { ...room, devices: [...room.devices, deviceId] }
+          : room
+      )
+    );
+  };
+
+  const getDevicesInRoom = (roomId: string | number[]) => {
+    const room = rooms.find((r) => r.id === roomId);
+    return room ? room.devices : [];
+  };
+
   return (
     <RoomsContext.Provider
       value={{
+        addDeviceToRoom,
+        getDevicesInRoom,
         sections,
         rooms,
         addSection,
@@ -275,7 +297,7 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
         removeRoomFromSection,
         getUnassignedRooms,
         updateSection,
-        updateRoom
+        updateRoom,
       }}
     >
       {children}

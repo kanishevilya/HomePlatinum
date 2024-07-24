@@ -8,13 +8,14 @@ import {
   Alert,
   FlatList,
   Image,
-  Platform
+  Platform,
+  SafeAreaView,
+  ScrollView,
 } from "react-native";
 import Icon from "../components/Icon";
 import { useRooms, Section } from "../RoomsContext";
 import * as ImagePicker from "expo-image-picker";
 import uuid from "react-native-uuid";
-
 
 export default function AddRoom({ navigation }: any) {
   const [nameOfRoom, setNameOfRoom] = useState("");
@@ -26,8 +27,6 @@ export default function AddRoom({ navigation }: any) {
   >([]);
   const { sections, addRoom, rooms } = useRooms();
 
-
-  
   const handleAddPress = async () => {
     const trimmedName = nameOfRoom.trim();
     const trimmedImage = image.trim();
@@ -79,29 +78,33 @@ export default function AddRoom({ navigation }: any) {
     );
   };
 
-  const renderSectionItem = ({ item }: { item: Section }) => (
-    <Pressable
-      style={[
-        styles.sectionItem,
-        {
-          backgroundColor: selectedSections.includes(item.id)
-            ? "#e0e0e0"
-            : "#f9f9f9",
-        },
-      ]}
-      onPress={() => toggleSectionSelection(item.id)}
-    >
-      <Text style={styles.sectionText}>{item.name}</Text>
-    </Pressable>
-  );
+  const RenderSectionItem = ({ item }: { item: Section }) => {
+    return (
+      <Pressable
+        style={[
+          styles.sectionItem,
+          {
+            backgroundColor: selectedSections.includes(item.id)
+              ? "#e0e0e0"
+              : "#f9f9f9",
+          },
+        ]}
+        onPress={() => toggleSectionSelection(item.id)}
+      >
+        <View style={styles.sectionContent}>
+          <Text style={styles.sectionText}>{item.name}</Text>
+          <Text style={styles.roomCount}>{item.roomIds.length} rooms</Text>
+        </View>
+      </Pressable>
+    );
+  };
 
-  
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       base64: true,
       allowsEditing: true,
-      //   aspect: [4, 3],
+      aspect: [4, 4],
       quality: 1,
     });
 
@@ -121,9 +124,8 @@ export default function AddRoom({ navigation }: any) {
     setImage(imageUrl);
   };
 
-
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Pressable
         onPress={() => navigation.goBack()}
         style={styles.goBackContainer}
@@ -147,33 +149,35 @@ export default function AddRoom({ navigation }: any) {
       <Text style={styles.subTitle}>Or</Text>
       <View style={{ flexDirection: "row", gap: 15 }}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { width: "75%" }]}
           value={imageUrl}
           onChangeText={setImageUrl}
           placeholder="Enter Image URL"
           placeholderTextColor="gray"
         />
-        <Pressable style={[styles.imagePickerButton, {paddingHorizontal: 15}]} onPress={saveImage}>
+        <Pressable
+          style={[styles.imagePickerButton, { paddingHorizontal: 15, flex: 1 }]}
+          onPress={saveImage}
+        >
           <Text style={styles.imagePickerButtonText}>Save</Text>
         </Pressable>
       </View>
-      {image != null && (
+      {image.trim() && (
         <View style={{ alignItems: "center" }}>
           <Image source={{ uri: image }} style={styles.image} />
         </View>
       )}
 
       <Text style={styles.subTitle}>Select Sections:</Text>
-      <FlatList
-        data={sections}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderSectionItem}
-        contentContainerStyle={styles.list}
-      />
+      <View style={styles.list}>
+        {sections.map((section: Section) => (
+          <RenderSectionItem key={section.id.toString()} item={section} />
+        ))}
+      </View>
       <Pressable style={styles.btn} onPress={handleAddPress}>
         <Text style={styles.btnText}>Add Room</Text>
       </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -247,11 +251,21 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 10,
   },
+  sectionContent: {
+    flex: 1,
+    flexDirection: "column",
+  },
   sectionText: {
     fontSize: 18,
     color: "#23282C",
   },
+  roomCount: {
+    fontSize: 14,
+    color: "#888",
+    marginTop: 5,
+  },
   list: {
+    marginTop: 20,
     marginBottom: 20,
   },
   btn: {
@@ -261,7 +275,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#23282C",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 20
+    marginTop: 20,
+    marginBottom: 50,
   },
   btnText: {
     fontSize: 18,

@@ -27,6 +27,7 @@ type UsersContexType = {
     phone: string,
     password: string
   ) => boolean;
+  updateUser: (updatedUser: User) => void;
 };
 
 const UsersContext = createContext<UsersContexType>({} as UsersContexType);
@@ -48,7 +49,11 @@ export function UsersProvider({ children }: { children: ReactNode }) {
       let savedUsers = (await AsyncStorage.getItem("users")) as string;
       if (savedUsers) {
         let parsedUsers = JSON.parse(savedUsers);
-        setUsers([...parsedUsers, UserMock]);
+        if (parsedUsers.length) {
+          setUsers(parsedUsers);
+        } else {
+          setUsers([UserMock]);
+        }
       }
     };
     const loadCurUser = async () => {
@@ -67,20 +72,21 @@ export function UsersProvider({ children }: { children: ReactNode }) {
     };
     saveUsers();
   }, [users]);
+  
   useEffect(() => {
     const saveUser = async () => {
-      await AsyncStorage.setItem("currentUser", JSON.stringify(currentUser));
+      await AsyncStorage.setItem("currentUser", currentUser);
     };
     saveUser();
   }, [currentUser]);
 
   const checkLogin = (login: string, password: string) => {
     for (let i = 0; i < users.length; i++) {
-      if (users[i].login === login) {
+      if (users[i].login.trim().toLowerCase() === login.toLowerCase()) {
         if (users[i].password === password) {
           return true;
         } else {
-          alert("Данный логин уже занят!");
+          alert("This login is already taken!");
           return false;
         }
       }
@@ -96,27 +102,38 @@ export function UsersProvider({ children }: { children: ReactNode }) {
     phone: string,
     password: string
   ) => {
-    for(let i = 0; i<users.length; i++){
-      if(users[i].login===login){
-        alert("Данный логин уже занят");
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].login.trim().toLowerCase() === login.toLowerCase()) {
+        alert("This login is already taken");
         return false;
       }
-      if(users[i].phone===phone){
-        alert("Данный номер телефона уже занят");
+      if (users[i].phone === phone) {
+        alert("This phone number is already taken");
         return false;
       }
     }
-    setUsers([...users, {
-      id: uuid.v4(),
-      login: login,
-      username: username,
-      phone: phone,
-      password: password
-    }]);
+    setUsers([
+      ...users,
+      {
+        id: uuid.v4(),
+        login: login,
+        username: username,
+        phone: phone,
+        password: password,
+      },
+    ]);
     return true;
   };
+
+  const updateUser = (updatedUser: User) => {
+    setUsers(
+      users.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+    );
+  };
   return (
-    <UsersContext.Provider value={{ currentUser, users, checkLogin, setUser, addUser }}>
+    <UsersContext.Provider
+      value={{ updateUser, currentUser, users, checkLogin, setUser, addUser }}
+    >
       {children}
     </UsersContext.Provider>
   );

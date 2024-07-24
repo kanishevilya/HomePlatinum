@@ -20,6 +20,7 @@ import { Room, Section, useRooms } from "../RoomsContext";
 import RoomCard from "../components/RoomCard";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import NavPanel from "../components/NavPanel";
 
 const { width } = Dimensions.get("window");
 
@@ -169,9 +170,16 @@ export default function Home({ navigation, route }: any) {
           ) : (
             <Text>Загрузка Данных</Text>
           )}
-          <View style={styles.notificationsBtn}>
-            <Icon name="ellipsis-h" color="white" size={35} />
-          </View>
+          <Pressable onPress={() => navigation.navigate("EditUser")}>
+            <View style={styles.notificationsBtn}>
+              <Icon
+                name="user"
+                color="white"
+                size={30}
+                addStyle={{ marginBottom: 1 }}
+              />
+            </View>
+          </Pressable>
         </View>
         <View style={styles.generalInfoView}>
           <Text style={styles.infoTitle}>General Information</Text>
@@ -318,12 +326,14 @@ export default function Home({ navigation, route }: any) {
           />
         </View>
       </View>
-      <Button
+
+      <NavPanel navigation={navigation} currentItem="Home"/>
+      {/* <Button
         title="Colors"
         onPress={() => {
           navigation.navigate("ColorPalette");
         }}
-      />
+      /> */}
     </View>
   );
 }

@@ -132,14 +132,14 @@ export default function EditRoom({ navigation, route }: any) {
       <Text style={styles.subTitle}>Or</Text>
       <View style={{ flexDirection: "row", gap: 15 }}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { width: "75%" }]}
           value={imageUrl}
           onChangeText={setImageUrl}
           placeholder="Enter Image URL"
           placeholderTextColor="gray"
         />
         <Pressable
-          style={[styles.imagePickerButton, { paddingHorizontal: 15 }]}
+          style={[styles.imagePickerButton, { paddingHorizontal: 15, flex: 1 }]}
           onPress={saveImage}
         >
           <Text style={styles.imagePickerButtonText}>Save</Text>
@@ -276,6 +276,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#23282C",
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 50,
   },
   btnText: {
     fontSize: 18,
