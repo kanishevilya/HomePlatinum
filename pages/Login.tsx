@@ -9,9 +9,11 @@ import {
 import handleBiometricAuth from "../components/ConfirmBiometric";
 
 import LockIcon from "../assets/images/LockIcon.svg";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useUsers } from "../UsersContext";
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 
 const lockIcon = require("../assets/images/LockIcon.svg");
 
@@ -31,19 +33,30 @@ export function HR() {
 export default function Login({ navigation }: any) {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const {checkLogin, setUser} = useUsers();
+  const { checkLogin, setUser } = useUsers();
+  useFocusEffect(
+    useCallback(() => {
+      async function func() {
+        let curUser = (await AsyncStorage.getItem("currentUser")) as string;
+        if (curUser !=null && curUser.trim() != "") {
+          navigation.navigate("Home");
+        }
+      }
+      func();
+    }, [])
+  );
   function loginHandle() {
-    if(login.trim() && password.trim()){
-      if(checkLogin(login.trim(), password.trim())){
+    if (login.trim() && password.trim()) {
+      if (checkLogin(login.trim(), password.trim())) {
         setUser(login);
         setLogin("");
         setPassword("");
         navigation.navigate("Home");
         alert("Добро пожаловать!");
-      }else{
+      } else {
         alert("Неверный логин или пароль");
       }
-    }else{
+    } else {
       alert("Вы должны заполнить все поля!");
     }
   }

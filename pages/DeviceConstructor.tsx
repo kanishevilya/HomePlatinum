@@ -59,6 +59,7 @@ export default function DeviceConstructor({ navigation }: any) {
     setDeviceName("");
     setSelectedFunctions([]);
     setSelectedRooms([]);
+    navigation.goBack();
   };
 
   const renderSection = (section: Section) => {

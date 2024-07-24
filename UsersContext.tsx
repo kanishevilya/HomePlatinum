@@ -72,7 +72,7 @@ export function UsersProvider({ children }: { children: ReactNode }) {
     };
     saveUsers();
   }, [users]);
-  
+
   useEffect(() => {
     const saveUser = async () => {
       await AsyncStorage.setItem("currentUser", currentUser);
@@ -81,16 +81,18 @@ export function UsersProvider({ children }: { children: ReactNode }) {
   }, [currentUser]);
 
   const checkLogin = (login: string, password: string) => {
-    for (let i = 0; i < users.length; i++) {
-      if (users[i].login.trim().toLowerCase() === login.toLowerCase()) {
-        if (users[i].password === password) {
-          return true;
-        } else {
-          alert("This login is already taken!");
-          return false;
-        }
+    const user = users.find(
+      (user) => user.login.trim().toLowerCase() === login.toLowerCase()
+    );
+    if (user) {
+      if (user.password === password) {
+        return true;
+      } else {
+        alert("Incorrect password");
+        return false;
       }
     }
+    alert("Login not found");
     return false;
   };
   const setUser = (login: string) => {

@@ -24,6 +24,8 @@ export default function RemoveRoom({ navigation }: any) {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
 
+  const [sortAsc, setSortAsc]=useState(true);
+
   const handleRemovePress = (roomId: string | number[]) => {
     const room = rooms.find((r) => r.id === roomId);
 
@@ -115,7 +117,8 @@ export default function RemoveRoom({ navigation }: any) {
   let filteredRooms = selectedSection
     ? rooms.filter((room) => room.sectionIds.includes(selectedSection))
     : rooms;
-  filteredRooms= searchQuery.trim() ? rooms.filter((room) => room.name.toLowerCase().includes(searchQuery.trim().toLowerCase())): filteredRooms;
+  filteredRooms= searchQuery.trim() ? filteredRooms.filter((room) => room.name.toLowerCase().includes(searchQuery.trim().toLowerCase())): filteredRooms;
+  filteredRooms= sortAsc? filteredRooms.sort((a:Room, b:Room)=> ('' + a.name).localeCompare(b.name)) : filteredRooms.sort((a:Room, b:Room)=> ('' + b.name).localeCompare(a.name))
   return (
     <View style={styles.container}>
       <Pressable
@@ -141,6 +144,7 @@ export default function RemoveRoom({ navigation }: any) {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
+      <Pressable onPress={()=>setSortAsc(!sortAsc)} style={styles.btn}><Text  style={styles.btnText}>Change sort direction</Text></Pressable>
       <View>
         <FlatList
           data={filteredRooms}
@@ -158,6 +162,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     padding: 20,
+  },
+  btn: {
+    backgroundColor: "#23282C",
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    // marginTop: 10,
+  },
+  btnText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   searchInput: {
     height: 40,
@@ -244,6 +261,6 @@ const styles = StyleSheet.create({
   },
   list: {
     marginTop: 20,
-    height: 410,
+    height: 370,
   },
 });

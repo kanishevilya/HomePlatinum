@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from "react-native";
 import { Device, useDevices } from "../DevicesContext";
-import { useRooms } from "../RoomsContext";
+import { getDefImg, useRooms } from "../RoomsContext";
 import Icon from "../components/Icon";
 import { useFocusEffect } from "@react-navigation/native";
 import {
@@ -30,6 +30,9 @@ export default function RoomDevices({ navigation, route }: any) {
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState<WeatherType | null>(null);
 
+  const [inDoorTemperature, setInDoorTemperature]= useState(20);
+  const [inDoorHumidity, setInDoorHumidity]= useState(50);
+
   const devicesInRoom = getDevicesInRoom(roomId)
     .map((deviceId) => devices.find((device) => device.id === deviceId))
     .filter((device) => device !== undefined) as Device[];
@@ -37,6 +40,28 @@ export default function RoomDevices({ navigation, route }: any) {
   const room = rooms.find((r) => r.id === roomId);
 
   const activeDevicesCount = devicesInRoom.filter((d) => d.state.isOn).length;
+
+  function calcData(){
+    let _inDoorTemperature=20;
+    let _inDoorHumidity=50;
+    devices.forEach((device)=>{
+        if(device.state.isOn){
+            if(device.state.temperature){
+                _inDoorTemperature=(_inDoorTemperature+device.state.temperature)/2;
+            }
+            if(device.state.humidity && device.state.humidity>0){
+                _inDoorHumidity=(_inDoorHumidity+device.state.humidity)/2;
+            }
+        }
+    });
+    setInDoorTemperature(_inDoorTemperature);
+    // alert(_inDoorTemperature)
+    // alert(_inDoorHumidity)
+    setInDoorHumidity(_inDoorHumidity);
+  }
+  useEffect(()=>{
+    calcData();
+  },[devices]);
 
   useFocusEffect(
     useCallback(() => {
@@ -76,7 +101,7 @@ export default function RoomDevices({ navigation, route }: any) {
 
       {room && (
         <ImageBackground
-          source={{ uri: room.image }}
+          source={room.image.trim() ? { uri: room.image }: getDefImg()}
           imageStyle={{
             borderRadius: 16,
             borderWidth: 2,
@@ -105,16 +130,16 @@ export default function RoomDevices({ navigation, route }: any) {
           <View style={styles.weatherInfo}>
             <View>
               <Text style={styles.weatherText}>Inside</Text>
-              <Text style={styles.weatherSubText}>25 °C</Text>
+              <Text style={styles.weatherSubText}>{inDoorTemperature.toFixed(2)} °C</Text>
             </View>
             <View>
               <Text style={styles.weatherText}>Outside</Text>
               <Text style={styles.weatherSubText}>{weather?.main.temp} °C</Text>
             </View>
             <View>
-              <Text style={styles.weatherText}>Weather</Text>
+              <Text style={styles.weatherText}>Humidity</Text>
               <Text style={styles.weatherSubText}>
-                {weather?.weather[0].main}
+                {inDoorHumidity.toFixed(2)} %
               </Text>
             </View>
           </View>
@@ -131,20 +156,21 @@ export default function RoomDevices({ navigation, route }: any) {
               style={[
                 styles.deviceCard,
                 item.state.isOn && styles.deviceCardOn,
+                item.state.backlight && item.state.isOn ? {shadowColor: item.state.backlight, borderColor: item.state.backlight, borderWidth: 2, elevation: 7}: {}
               ]}
             >
               <View style={styles.cardTop}>
                 <Pressable onPress={()=>navigation.navigate("Device", {"deviceId": item.id})}>
                   <Icon
                     name="expand"
-                    color={item.state.isOn ? "white" : "#767577"}
+                    color={item.state.isOn ? (item.state.color ? item.state.color : "white") : "#767577"}
                     size={40}
                   />
                 </Pressable>
                 <Switch
                   value={item.state.isOn}
-                  thumbColor={item.state.isOn ? "#3A96CF" : "darkgray"}
-                  trackColor={{ false: "#767577", true: "#81b0ff" }}
+                  thumbColor={item.state.isOn ? (item.state.color ? item.state.color : "darkgray") : "darkgray"}
+                  trackColor={{ false: "#767577", true: "white" }}
                   onValueChange={() =>
                     updateDeviceState(item.id, { isOn: !item.state.isOn })
                   }
@@ -153,7 +179,7 @@ export default function RoomDevices({ navigation, route }: any) {
               <Text
                 style={[
                   styles.deviceName,
-                  item.state.isOn && styles.deviceNameOn,
+                  item.state.isOn && (item.state.color ? {color: item.state.color} : {color:  "#fff"}),
                 ]}
               >
                 {item.name}

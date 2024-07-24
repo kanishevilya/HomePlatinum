@@ -33,7 +33,7 @@ export interface Device {
     color?: string;
     humidity?: number;
     temperature?: number;
-    backlight?: boolean;
+    backlight?: string;
     timer?: number;
   };
   timerSettings?: {
@@ -45,7 +45,7 @@ export interface Device {
 
 interface DevicesContextType {
   devices: Device[];
-  tasks: Task[];
+  //   tasks: Task[];
   addDevice: (
     name: string,
     functions: DeviceFunction[],
@@ -59,30 +59,31 @@ interface DevicesContextType {
     id: string | number[],
     timerSettings: Device["timerSettings"]
   ) => void;
-  addTask: (time: string, deviceIds: (string | number[])[]) => void;
-  handleTasks: () => void;
+  //   addTask: (time: string, deviceIds: (string | number[])[]) => void;
+  //   handleTasks: () => void;
   handleTimers: () => void;
   getDevicesInRoom: (roomId: string) => Device[];
+  removeDevice: (deviceId: string | number[]) => void;
 }
 
 const DevicesContext = createContext<DevicesContextType | undefined>(undefined);
 
 export function DevicesProvider({ children }: { children: ReactNode }) {
   const [devices, setDevices] = useState<Device[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  //   const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
       const savedDevices = (await AsyncStorage.getItem("devices")) as string;
-      const savedTasks = (await AsyncStorage.getItem("tasks")) as string;
+      //   const savedTasks = (await AsyncStorage.getItem("tasks")) as string;
       let parsedDevices = JSON.parse(savedDevices);
-      let parsedTasks = JSON.parse(savedTasks);
+      //   let parsedTasks = JSON.parse(savedTasks);
       if (parsedDevices) {
         setDevices(parsedDevices);
       }
-      if (parsedTasks) {
-        setTasks(parsedTasks);
-      }
+      //   if (parsedTasks) {
+      //     setTasks(parsedTasks);
+      //   }
     };
 
     loadData();
@@ -95,12 +96,12 @@ export function DevicesProvider({ children }: { children: ReactNode }) {
     saveDevices();
   }, [devices]);
 
-  useEffect(() => {
-    const saveTasks = async () => {
-      await AsyncStorage.setItem("tasks", JSON.stringify(tasks));
-    };
-    saveTasks();
-  }, [tasks]);
+  //   useEffect(() => {
+  //     const saveTasks = async () => {
+  //       await AsyncStorage.setItem("tasks", JSON.stringify(tasks));
+  //     };
+  //     saveTasks();
+  //   }, [tasks]);
 
   const addDevice = (
     name: string,
@@ -121,6 +122,11 @@ export function DevicesProvider({ children }: { children: ReactNode }) {
       },
     ]);
     return id;
+  };
+  const removeDevice = (deviceId: string | number[]) => {
+    setDevices((prevDevices) =>
+      prevDevices.filter((device) => device.id !== deviceId)
+    );
   };
 
   const updateDeviceState = (
@@ -147,40 +153,40 @@ export function DevicesProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const addTask = (time: string, deviceIds: (string | number[])[]) => {
-    setTasks((prevTasks) => [
-      ...prevTasks,
-      {
-        id: uuid.v4(),
-        time,
-        devices: deviceIds,
-      },
-    ]);
-  };
+  //   const addTask = (time: string, deviceIds: (string | number[])[]) => {
+  //     setTasks((prevTasks) => [
+  //       ...prevTasks,
+  //       {
+  //         id: uuid.v4(),
+  //         time,
+  //         devices: deviceIds,
+  //       },
+  //     ]);
+  //   };
 
-  const handleTasks = () => {
-    const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")}`;
+  //   const handleTasks = () => {
+  //     const now = new Date();
+  //     const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now
+  //       .getMinutes()
+  //       .toString()
+  //       .padStart(2, "0")}`;
 
-    tasks.forEach((task) => {
-      if (task.time === currentTime) {
-        task.devices.forEach((deviceId) => {
-          const device = devices.find((d) => d.id === deviceId);
-          if (device) {
-            updateDeviceState(deviceId, { isOn: true });
-          }
-        });
-      }
-    });
-  };
+  //     tasks.forEach((task) => {
+  //       if (task.time === currentTime) {
+  //         task.devices.forEach((deviceId) => {
+  //           const device = devices.find((d) => d.id === deviceId);
+  //           if (device) {
+  //             updateDeviceState(deviceId, { isOn: true });
+  //           }
+  //         });
+  //       }
+  //     });
+  //   };
 
-  useEffect(() => {
-    const intervalId = setInterval(handleTasks, 60000);
-    return () => clearInterval(intervalId);
-  }, [tasks]);
+  //   useEffect(() => {
+  //     const intervalId = setInterval(handleTasks, 60000);
+  //     return () => clearInterval(intervalId);
+  //   }, [tasks]);
 
   const handleTimers = () => {
     const now = new Date();
@@ -229,10 +235,8 @@ export function DevicesProvider({ children }: { children: ReactNode }) {
   return (
     <DevicesContext.Provider
       value={{
+        removeDevice,
         getDevicesInRoom,
-        tasks,
-        addTask,
-        handleTasks,
         devices,
         addDevice,
         updateDeviceState,

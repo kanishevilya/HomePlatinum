@@ -49,10 +49,9 @@ const initialSections: Record<string, string[]> = {
 
 const bedroomImage = require("./assets/images/Bedroom.png");
 
-export function getDefImg(){
+export function getDefImg() {
   return bedroomImage;
 }
-
 
 export const sectionNames = Object.keys(initialSections);
 
@@ -83,6 +82,7 @@ type RoomsContextType = {
     roomId: string | number[],
     deviceId: string | number[]
   ) => void;
+  removeDeviceFromRoom: (deviceId: string | number[], roomId: string | number[]) => void;
   getDevicesInRoom: (roomId: string | number[]) => (string | number[])[];
 };
 
@@ -264,6 +264,13 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
         room.id === roomId ? { ...room, ...updatedRoom } : room
       )
     );
+    setSections((prevSections) =>
+      prevSections.map((section) =>
+        updatedRoom.sectionIds?.includes(section.id)
+          ? { ...section, roomIds: [...section.roomIds, roomId] }
+          : section
+      )
+    );
   };
 
   const getSections = () => sections;
@@ -282,6 +289,15 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const removeDeviceFromRoom = (deviceId: string | number[], roomId: string | number[]) => {
+    setRooms((prevRooms) =>
+      prevRooms.map((room) => ( room.id === roomId ? {
+        ...room,
+        devices: room.devices.filter((id) => id !== deviceId),
+      }: room))
+    );
+  };
+
   const getDevicesInRoom = (roomId: string | number[]) => {
     const room = rooms.find((r) => r.id === roomId);
     return room ? room.devices : [];
@@ -290,6 +306,7 @@ export function RoomsProvider({ children }: { children: ReactNode }) {
   return (
     <RoomsContext.Provider
       value={{
+        removeDeviceFromRoom,
         addDeviceToRoom,
         getDevicesInRoom,
         sections,

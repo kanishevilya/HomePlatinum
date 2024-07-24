@@ -40,13 +40,8 @@ export default function App() {
         <DevicesProvider>
           <NavigationContainer>
             <StatusBar />
-            <RootStack.Navigator>
+            <RootStack.Navigator initialRouteName="Login">
               <RootStack.Group>
-                <RootStack.Screen
-                  name="Home"
-                  component={Home}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
                 <RootStack.Screen
                   name="Login"
                   component={Login}
@@ -58,16 +53,21 @@ export default function App() {
                   options={({ navigation }) => ({ headerShown: false })}
                 />
                 <RootStack.Screen
+                  name="Home"
+                  component={Home}
+                  options={({ navigation, route }) => ({ headerShown: false })}
+                />
+                <RootStack.Screen
                   name="Device"
                   component={Device}
-                  options={({ navigation , route}) => ({ headerShown: false })}
+                  options={({ navigation, route }) => ({ headerShown: false })}
                 />
               </RootStack.Group>
               <RootStack.Group screenOptions={{ presentation: "modal" }}>
                 <RootStack.Screen
                   name="ColorPalette"
                   component={ColorPalette}
-                  options={({ navigation }) => ({ headerShown: false })}
+                  options={({ navigation, route }) => ({ headerShown: false })}
                 />
 
                 <RootStack.Screen

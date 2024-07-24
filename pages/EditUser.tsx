@@ -10,6 +10,7 @@ import {
 import { useUsers, User } from "../UsersContext";
 import Icon from "../components/Icon";
 import NavPanel from "../components/NavPanel";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function EditUser({ navigation }: any) {
   const { currentUser, users, setUser, updateUser, checkLogin } = useUsers();
@@ -78,6 +79,10 @@ export default function EditUser({ navigation }: any) {
     alert("Success!");
     // navigation.goBack();
   };
+  const handleExit=async ()=>{
+    await AsyncStorage.setItem("currentUser", "");
+    navigation.navigate("Login");
+  }
 
   return (
     <View style={styles.container}>
@@ -122,6 +127,9 @@ export default function EditUser({ navigation }: any) {
         />
         <Pressable style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Save</Text>
+        </Pressable>
+        <Pressable style={[styles.saveButton, {marginTop: 15}]} onPress={handleExit}>
+          <Text style={styles.saveButtonText}>Exit</Text>
         </Pressable>
       </View>
       <NavPanel navigation={navigation} currentItem="EditUser" />

@@ -21,13 +21,6 @@ export default function NavPanel({
         </Pressable>
         <Pressable onPress={() => {}}>
           <Icon
-            name="calendar"
-            color={currentItem == "TimeTable" ? "#23282C" : "#7b8d9c"}
-            size={32}
-          />
-        </Pressable>
-        <Pressable onPress={() => {}}>
-          <Icon
             name="paint-brush"
             color={currentItem == "Themes" ? "#23282C" : "#7b8d9c"}
             size={32}
@@ -55,7 +48,7 @@ const styles = StyleSheet.create({
 
   container: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     alignItems: "center",
     width: 326,
     height: 74,

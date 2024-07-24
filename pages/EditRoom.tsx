@@ -51,6 +51,28 @@ export default function EditRoom({ navigation, route }: any) {
 
   const handleSave = () => {
     if (!room) return;
+    const trimmedName = name.trim();
+    const trimmedImage = image.trim();
+
+    if (trimmedName === "") {
+      Alert.alert("Error", "Room name cannot be empty!");
+      return;
+    }
+
+    if (trimmedImage === "") {
+      Alert.alert("Error", "Image URL cannot be empty!");
+      return;
+    }
+
+    const isDuplicate = rooms.some(
+      (_room) => _room.name.trim().toLowerCase() === trimmedName.toLowerCase() && _room.id!==room.id
+    );
+
+    if (isDuplicate) {
+      Alert.alert("Error", "Room with the same name already exists!");
+      return;
+    }
+
     const updatedRoom = {
       ...room,
       name: name,
@@ -71,7 +93,7 @@ export default function EditRoom({ navigation, route }: any) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       base64: true,
       allowsEditing: true,
-      //   aspect: [4, 3],
+      aspect: [4, 4],
       quality: 1,
     });
 
@@ -145,7 +167,7 @@ export default function EditRoom({ navigation, route }: any) {
           <Text style={styles.imagePickerButtonText}>Save</Text>
         </Pressable>
       </View>
-      {image.trim() != null && (
+      {image.trim() != "" && (
         <View style={{ alignItems: "center" }}>
           <Image source={{ uri: image }} style={styles.image} />
         </View>
