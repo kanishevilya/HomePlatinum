@@ -7,6 +7,7 @@ import React, {
   useEffect,
 } from "react";
 import uuid from "react-native-uuid";
+import { sendNotification } from "./components/Notification";
 
 export type Task = {
   id: string | number[];
@@ -106,11 +107,11 @@ export function DevicesProvider({ children }: { children: ReactNode }) {
     functions: DeviceFunction[],
     roomId: string | number[] | null
   ) => {
-    const id=uuid.v4();
+    const id = uuid.v4();
     setDevices((prevDevices) => [
       ...prevDevices,
       {
-        id:id ,
+        id: id,
         name,
         functions,
         state: {
@@ -177,31 +178,51 @@ export function DevicesProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      handleTasks();
-      handleTimers();
-    }, 60000);
+    const intervalId = setInterval(handleTasks, 60000);
     return () => clearInterval(intervalId);
-  }, [devices, tasks]);
+  }, [tasks]);
 
   const handleTimers = () => {
     const now = new Date();
+    const currentTime = now.getHours() * 60 + now.getMinutes(); // Текущее время в минутах с начала дня
+
     devices.forEach((device) => {
-      const { timerSettings, state } = device;
+      const { timerSettings } = device;
       if (timerSettings) {
         const { onTime, offTime } = timerSettings;
-        const minutesPassed =
-          now.getHours() * 60 + now.getMinutes() - (device.state.timer || 0);
-
-        if (onTime && minutesPassed >= onTime) {
+        console.log("OnTime: ", currentTime - (onTime || 0));
+        console.log("OffTime: ", currentTime - (offTime || 0));
+        if (onTime !== undefined && currentTime >= onTime) {
           updateDeviceState(device.id, { isOn: true });
+          timerSettings.onTime = undefined;
+          sendNotification({
+            content: {
+              title: "Device Timer",
+              body: `${device.name} has been turned on.`,
+            },
+            trigger: { seconds: 1 },
+          });
         }
-        if (offTime && minutesPassed >= offTime) {
+        if (offTime !== undefined && currentTime >= offTime) {
           updateDeviceState(device.id, { isOn: false });
+          timerSettings.offTime = undefined;
+          sendNotification({
+            content: {
+              title: "Device Timer",
+              body: `${device.name} has been turned off.`,
+            },
+            trigger: { seconds: 1 },
+          });
         }
       }
     });
   };
+
+  useEffect(() => {
+    const intervalId = setInterval(handleTimers, 60000);
+    return () => clearInterval(intervalId);
+  }, [devices]);
+
   const getDevicesInRoom = (roomId: string) => {
     return devices.filter((device) => device.roomId === roomId);
   };

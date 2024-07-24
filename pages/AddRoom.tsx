@@ -162,7 +162,7 @@ export default function AddRoom({ navigation }: any) {
           <Text style={styles.imagePickerButtonText}>Save</Text>
         </Pressable>
       </View>
-      {image.trim() && (
+      {image.trim() != null && (
         <View style={{ alignItems: "center" }}>
           <Image source={{ uri: image }} style={styles.image} />
         </View>

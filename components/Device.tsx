@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -21,7 +21,9 @@ export function Device({ navigation, route }: any) {
   const { devices, updateDeviceState, setTimer } = useDevices();
   const device = devices.find((d) => d.id === deviceId);
   const [timerValue, setTimerValue] = useState("");
-
+  const [currentTimeInMinutes, setCurrentTimeInMinutes] = useState(
+    new Date().getHours() * 60 + new Date().getMinutes()
+  );
 
   if (!device) return null;
 
@@ -32,18 +34,32 @@ export function Device({ navigation, route }: any) {
   const handleTimerChange = (value: string) => {
     setTimerValue(value);
   };
+  useEffect(() => {
+    const intervalId = setInterval(
+      () =>
+        setCurrentTimeInMinutes(
+          new Date().getHours() * 60 + new Date().getMinutes()
+        ),
+      1000
+    );
+    return () => clearInterval(intervalId);
+  }, [devices]);
 
   const handleSetTimer = () => {
     const minutes = Number(timerValue);
     if (!isNaN(minutes)) {
-      setTimer(deviceId, {
-        ...device.timerSettings,
-        onTime: device.state.isOn ? undefined : minutes,
-        offTime: device.state.isOn ? minutes : undefined,
-      });
+      const now = new Date();
+      const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+      const targetTimeInMinutes = currentTimeInMinutes + minutes;
+      console.log(targetTimeInMinutes);
+      const onTime = device.state.isOn ? undefined : targetTimeInMinutes;
+      const offTime = device.state.isOn ? targetTimeInMinutes : undefined;
+      console.log({ onTime, offTime });
+
+      setTimer(deviceId, { onTime, offTime });
+      setTimerValue("");
     }
   };
-
 
   return (
     <View style={styles.container}>
@@ -102,12 +118,24 @@ export function Device({ navigation, route }: any) {
         )}
         {device.functions.includes("timer") && (
           <View>
-            <Text>Timer (minutes) {(device.timerSettings?.onTime || 0).toString()}</Text>
+            {/* <Text>{currentTimeInMinutes}</Text> */}
+            {/* <Text>{JSON.stringify(device.timerSettings)}</Text> */}
+            <Text>Timer (minutes)</Text>
+            {(device.timerSettings?.onTime ||
+              device.timerSettings?.offTime) && (
+              <Text>
+                {(
+                  (device.timerSettings?.onTime
+                    ? device.timerSettings?.onTime
+                    : device.timerSettings?.offTime || 0) - currentTimeInMinutes
+                ).toString()}
+              </Text>
+            )}
             <TextInput
               keyboardType="numeric"
               value={timerValue}
               onChangeText={handleTimerChange}
-            //   placeholder={}
+              //   placeholder={}
             />
             <Button title="Set Timer" onPress={handleSetTimer} />
           </View>

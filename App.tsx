@@ -30,8 +30,10 @@ import DeviceConstructor from "./pages/DeviceConstructor";
 import RoomDevices from "./pages/RoomDevices";
 import { DevicesProvider } from "./DevicesContext";
 import { Device } from "./components/Device";
+import { NotificationsInit } from "./components/Notification";
 
 export default function App() {
+  NotificationsInit();
   return (
     <UsersProvider>
       <RoomsProvider>

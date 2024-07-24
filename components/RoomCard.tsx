@@ -19,9 +19,8 @@ import Icon from "./Icon";
 
 import EditIcon from "../assets/images/EditIcon.svg";
 import LockIcon from "../assets/images/LockIcon.svg";
-import { Room } from "../RoomsContext";
+import {getDefImg, Room } from "../RoomsContext";
 
-const bedroomImage = require("../assets/images/Bedroom.png");
 
 function RoomCardWithoutAnimation({
   item,
@@ -60,7 +59,7 @@ function RoomCardWithoutAnimation({
         <ImageBackground
           style={styles.roomImage}
           imageStyle={{ borderRadius: 16 }}
-          source={image.trim() ? {uri: image} : bedroomImage}
+          source={image.trim() ? {uri: image} : getDefImg() }
         >
           <LinearGradient
             style={styles.imageShadow}

@@ -145,7 +145,7 @@ export default function EditRoom({ navigation, route }: any) {
           <Text style={styles.imagePickerButtonText}>Save</Text>
         </Pressable>
       </View>
-      {image != null && (
+      {image.trim() != null && (
         <View style={{ alignItems: "center" }}>
           <Image source={{ uri: image }} style={styles.image} />
         </View>

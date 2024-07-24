@@ -47,6 +47,13 @@ const initialSections: Record<string, string[]> = {
   Restrooms: ["Restroom", "Laundry"],
 };
 
+const bedroomImage = require("./assets/images/Bedroom.png");
+
+export function getDefImg(){
+  return bedroomImage;
+}
+
+
 export const sectionNames = Object.keys(initialSections);
 
 type RoomsContextType = {

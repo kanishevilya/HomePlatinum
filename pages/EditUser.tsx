@@ -108,6 +108,7 @@ export default function EditUser({ navigation }: any) {
           value={password}
           onChangeText={setPassword}
           placeholder="(Leave blank if you don't want to change)"
+          placeholderTextColor="gray"
           secureTextEntry
         />
         <Text style={styles.label}>Confirm Password</Text>
@@ -115,6 +116,8 @@ export default function EditUser({ navigation }: any) {
           style={styles.input}
           value={confirmPassword}
           onChangeText={setConfirmPassword}
+          placeholder="(Leave blank if you don't want to change)"
+          placeholderTextColor="gray"
           secureTextEntry
         />
         <Pressable style={styles.saveButton} onPress={handleSave}>
