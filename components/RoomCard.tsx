@@ -20,6 +20,7 @@ import Icon from "./Icon";
 import EditIcon from "../assets/images/EditIcon.svg";
 import LockIcon from "../assets/images/LockIcon.svg";
 import {getDefImg, Room } from "../RoomsContext";
+import { getTheme } from "./ThemesData";
 
 
 function RoomCardWithoutAnimation({
@@ -46,6 +47,7 @@ function RoomCardWithoutAnimation({
   // } else if (item.index === (currentRoomsArray?.length ?? 0) - 1) {
   //   s.push({ marginRight: 32 });
   // }
+  const theme=getTheme();
 
   return (
     <Pressable onPress={() => navigation.navigate("RoomDevices", {"roomId": item.item.id})}>
@@ -53,7 +55,7 @@ function RoomCardWithoutAnimation({
         style={styles.roomCard}
         start={[0, 0]}
         end={[0.6, 0.5]}
-        colors={["#A1DBFF", "white"]}
+        colors={[theme.gradientColor, "white"]}
       >
         <View style={styles.gestureZone} {...panResponder.panHandlers} />
         <ImageBackground

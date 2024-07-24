@@ -7,6 +7,9 @@ import React, {
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import uuid from "react-native-uuid";
+import { Device } from "./DevicesContext";
+import { Room, Section } from "./RoomsContext";
+
 
 export type User = {
   id: string | number[];

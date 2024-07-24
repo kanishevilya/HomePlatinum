@@ -22,8 +22,9 @@ export default function EditUser({ navigation }: any) {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
+    console.log(currentUser);
     const userToEdit = users.find(
-      (u) => u.login.toLowerCase() === currentUser.toLowerCase()
+      (u) => u.login.trim().toLowerCase() === currentUser.trim().toLowerCase()
     );
     if (userToEdit) {
       setUserState(userToEdit);

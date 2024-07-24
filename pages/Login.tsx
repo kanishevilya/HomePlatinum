@@ -48,6 +48,7 @@ export default function Login({ navigation }: any) {
   function loginHandle() {
     if (login.trim() && password.trim()) {
       if (checkLogin(login.trim(), password.trim())) {
+        console.log(login);
         setUser(login);
         setLogin("");
         setPassword("");

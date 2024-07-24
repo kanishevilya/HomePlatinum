@@ -21,6 +21,7 @@ import RoomCard from "../components/RoomCard";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NavPanel from "../components/NavPanel";
+import { getTheme } from "../components/ThemesData";
 
 const { width } = Dimensions.get("window");
 
@@ -147,6 +148,8 @@ export default function Home({ navigation, route }: any) {
     }
   };
 
+  const theme=getTheme();
+
   return (
     <View style={[styles.container, { backgroundColor: "#F1F1F1" }]}>
       <LinearGradient
@@ -156,13 +159,13 @@ export default function Home({ navigation, route }: any) {
         <View style={styles.headerView}>
           {weather ? (
             <LinearGradient
-              style={styles.weatherIconBlock}
-              colors={["#68bce3", "#81D4FA", "#bae9ff"]}
+              style={[styles.weatherIconBlock, {borderColor: theme.borderColor}]}
+              colors={theme.colors}
             >
               <WeatherIcon weather={weather} />
               <View style={styles.textContainer}>
-                <Text style={styles.currentDate}>{currentDay}</Text>
-                <Text style={styles.weatherInfoText}>
+                <Text style={[styles.currentDate, theme.textColor ? {color: theme.textColor} : {}]}>{currentDay}</Text>
+                <Text style={[styles.weatherInfoText , theme.textColor ? {color: theme.textColor} : {}]}>
                   {weather.weather[0].main}
                 </Text>
               </View>

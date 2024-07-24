@@ -31,96 +31,131 @@ import RoomDevices from "./pages/RoomDevices";
 import { DevicesProvider } from "./DevicesContext";
 import { Device } from "./components/Device";
 import { NotificationsInit } from "./components/Notification";
+import { ThemeProvider } from "./ThemeContext";
+import Themes from "./pages/Themes";
 
 export default function App() {
   NotificationsInit();
   return (
     <UsersProvider>
-      <RoomsProvider>
-        <DevicesProvider>
-          <NavigationContainer>
-            <StatusBar />
-            <RootStack.Navigator initialRouteName="Login">
-              <RootStack.Group>
-                <RootStack.Screen
-                  name="Login"
-                  component={Login}
-                  options={({ navigation }) => ({ headerShown: false })}
-                />
-                <RootStack.Screen
-                  name="Register"
-                  component={Register}
-                  options={({ navigation }) => ({ headerShown: false })}
-                />
-                <RootStack.Screen
-                  name="Home"
-                  component={Home}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
-                <RootStack.Screen
-                  name="Device"
-                  component={Device}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
-              </RootStack.Group>
-              <RootStack.Group screenOptions={{ presentation: "modal" }}>
-                <RootStack.Screen
-                  name="ColorPalette"
-                  component={ColorPalette}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
+      <ThemeProvider>
+        <RoomsProvider>
+          <DevicesProvider>
+            <NavigationContainer>
+              <StatusBar />
+              <RootStack.Navigator initialRouteName="Login">
+                <RootStack.Group>
+                  <RootStack.Screen
+                    name="Login"
+                    component={Login}
+                    options={({ navigation }) => ({ headerShown: false })}
+                  />
+                  <RootStack.Screen
+                    name="Register"
+                    component={Register}
+                    options={({ navigation }) => ({ headerShown: false })}
+                  />
+                  <RootStack.Screen
+                    name="Home"
+                    component={Home}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
+                  <RootStack.Screen
+                    name="Device"
+                    component={Device}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
+                </RootStack.Group>
+                <RootStack.Group screenOptions={{ presentation: "modal" }}>
+                  <RootStack.Screen
+                    name="ColorPalette"
+                    component={ColorPalette}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
+                  <RootStack.Screen
+                    name="Themes"
+                    component={Themes}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
 
-                <RootStack.Screen
-                  name="AddRoomSection"
-                  component={AddRoomSection}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
-                <RootStack.Screen
-                  name="EditRoomSection"
-                  component={EditSection}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
-                <RootStack.Screen
-                  name="EditUser"
-                  component={EditUser}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
+                  <RootStack.Screen
+                    name="AddRoomSection"
+                    component={AddRoomSection}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
+                  <RootStack.Screen
+                    name="EditRoomSection"
+                    component={EditSection}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
+                  <RootStack.Screen
+                    name="EditUser"
+                    component={EditUser}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
 
-                <RootStack.Screen
-                  name="EditRoom"
-                  component={EditRoom}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
-                <RootStack.Screen
-                  name="AddRoom"
-                  component={AddRoom}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
-                <RootStack.Screen
-                  name="RemoveRoom"
-                  component={RemoveRoom}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
-                <RootStack.Screen
-                  name="RemoveRoomSection"
-                  component={RemoveRoomSection}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
-                <RootStack.Screen
-                  name="DeviceConstructor"
-                  component={DeviceConstructor}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
-                <RootStack.Screen
-                  name="RoomDevices"
-                  component={RoomDevices}
-                  options={({ navigation, route }) => ({ headerShown: false })}
-                />
-              </RootStack.Group>
-            </RootStack.Navigator>
-          </NavigationContainer>
-        </DevicesProvider>
-      </RoomsProvider>
+                  <RootStack.Screen
+                    name="EditRoom"
+                    component={EditRoom}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
+                  <RootStack.Screen
+                    name="AddRoom"
+                    component={AddRoom}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
+                  <RootStack.Screen
+                    name="RemoveRoom"
+                    component={RemoveRoom}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
+                  <RootStack.Screen
+                    name="RemoveRoomSection"
+                    component={RemoveRoomSection}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
+                  <RootStack.Screen
+                    name="DeviceConstructor"
+                    component={DeviceConstructor}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
+                  <RootStack.Screen
+                    name="RoomDevices"
+                    component={RoomDevices}
+                    options={({ navigation, route }) => ({
+                      headerShown: false,
+                    })}
+                  />
+                </RootStack.Group>
+              </RootStack.Navigator>
+            </NavigationContainer>
+          </DevicesProvider>
+        </RoomsProvider>
+      </ThemeProvider>
     </UsersProvider>
   );
 }

@@ -25,13 +25,16 @@ export default function RemoveRoom({ navigation }: any) {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const [sortAsc, setSortAsc]=useState(true);
+  const [canBeRemove, setCanBeRemove] = useState(false);
+
 
   const handleRemovePress = (roomId: string | number[]) => {
     const room = rooms.find((r) => r.id === roomId);
 
     if (!room) return;
 
-    if (room.devices.length > 0) {
+    if (room.devices.length > 0&& !canBeRemove) {
+      setCanBeRemove(true);
       Alert.alert(
         "Rooms contain devices.",
         "Click again if you want to delete rooms and move devices to the 'Inactive' section.",

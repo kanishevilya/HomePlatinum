@@ -19,7 +19,7 @@ export default function NavPanel({
             size={32}
           />
         </Pressable>
-        <Pressable onPress={() => {}}>
+        <Pressable onPress={() => navigation.navigate("Themes")}>
           <Icon
             name="paint-brush"
             color={currentItem == "Themes" ? "#23282C" : "#7b8d9c"}
