@@ -11,6 +11,7 @@ import {
 import ColorPicker from "react-native-wheel-color-picker";
 import { useDevices } from "../DevicesContext";
 import Icon from "./Icon";
+import Slider from "@react-native-community/slider";
 
 interface DeviceProps {
   deviceId: string | number[];
@@ -71,17 +72,35 @@ export function Device({ navigation, route }: any) {
         <Text style={styles.goBackText}>Go Back</Text>
       </Pressable>
       <View style={styles.deviceContainer}>
-        <Text style={styles.deviceName}>{device.name}</Text>
-        <Switch value={device.state.isOn} onValueChange={handleSwitchChange} />
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Text style={styles.deviceName}>{device.name}</Text>
+          <Switch
+            value={device.state.isOn}
+            onValueChange={handleSwitchChange}
+          />
+        </View>
         {device.functions.includes("brightness") && (
-          <View>
+          <View style={styles.sliderView}>
             <Text>Brightness</Text>
-            {/* <Slider
-            value={device.state.brightness || 50}
-            onValueChange={(value) => updateDeviceState(deviceId, { brightness: value })}
-            minimumValue={0}
-            maximumValue={100}
-          /> */}
+            <Slider
+              thumbTintColor="gray"
+              minimumTrackTintColor="darkgray"
+              style={{ width: 200, height: 40 }}
+              value={device.state.brightness || 50}
+              onValueChange={(value) =>
+                updateDeviceState(deviceId, { brightness: value })
+              }
+              step={10}
+              minimumValue={20}
+              maximumValue={100}
+            />
+            <Text>{device.state.brightness || 50}</Text>
           </View>
         )}
         {device.functions.includes("color") && (
@@ -95,25 +114,39 @@ export function Device({ navigation, route }: any) {
           </View>
         )}
         {device.functions.includes("humidity") && (
-          <View>
+          <View style={styles.sliderView}>
             <Text>Humidity</Text>
-            {/* <Slider
-            value={device.state.humidity || 50}
-            onValueChange={(value) => updateDeviceState(deviceId, { humidity: value })}
-            minimumValue={0}
-            maximumValue={100}
-          /> */}
+            <Slider
+              thumbTintColor="gray"
+              minimumTrackTintColor="darkgray"
+              style={{ width: 200, height: 40 }}
+              value={device.state.humidity || 0}
+              onValueChange={(value) =>
+                updateDeviceState(deviceId, { humidity: value })
+              }
+              step={10}
+              minimumValue={0}
+              maximumValue={100}
+            />
+            <Text>{device.state.humidity || 0}</Text>
           </View>
         )}
         {device.functions.includes("temperature") && (
-          <View>
+          <View style={styles.sliderView}>
             <Text>Temperature</Text>
-            {/* <Slider
-            value={device.state.temperature || 20}
-            onValueChange={(value) => updateDeviceState(deviceId, { temperature: value })}
-            minimumValue={-20}
-            maximumValue={40}
-          /> */}
+            <Slider
+              thumbTintColor="gray"
+              minimumTrackTintColor="darkgray"
+              style={{ width: 200, height: 20 }}
+              value={device.state.temperature || 0}
+              onValueChange={(value) =>
+                updateDeviceState(deviceId, { temperature: value })
+              }
+              step={1}
+              minimumValue={15}
+              maximumValue={30}
+            />
+            <Text>{device.state.temperature || 15}</Text>
           </View>
         )}
         {device.functions.includes("timer") && (
@@ -150,6 +183,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     padding: 20,
+  },
+  sliderView: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   goBackContainer: {
     flexDirection: "row",
